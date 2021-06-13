@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">ParkNow</string>
+    <string name="name">Shivam Shrivastav</string>
+    <string name="email">shivam.shrivastav@sjsu.edu</string>
+    <string name="img">image</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="welcome">Welcome to ParkNow !</string>
+    <string name="aboutMsg">This app helps you locate nearest available parking spots.</string>
+    <string name="developer">We use crowd-sourced data to provide you an accurate, reliable real-time parking availability information</string>
+    <string name="logout">Logout</string>
+    <string name="home">Home</string>
+    <string name="about">About</string>
+    <string name="enter_address">Enter Destination Address</string>
+    <string name="openList">Open List</string>
+    <string name="nearbyLoc">Nearby Parking Locations</string>
+    <string name="placeTitle">Sample Place</string>
+    <string name="time">Time: </string>
+    <string name="distance">Distance: </string>
+    <string name="eta">ETA: </string>
+    <string name="open">Open</string>
+</resources>
