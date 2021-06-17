@@ -1,9 +1,13 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "global_code"
 })
 @Generated("jsonschema2pojo")
-public class PlusCode {
+public class PlusCode implements Serializable, Parcelable
+{
 
     @JsonProperty("compound_code")
     private String compoundCode;
@@ -25,6 +30,32 @@ public class PlusCode {
     private String globalCode;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<PlusCode> CREATOR = new Creator<PlusCode>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public PlusCode createFromParcel(android.os.Parcel in) {
+            return new PlusCode(in);
+        }
+
+        public PlusCode[] newArray(int size) {
+            return (new PlusCode[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = 3741247594565816739L;
+
+    protected PlusCode(android.os.Parcel in) {
+        this.compoundCode = ((String) in.readValue((String.class.getClassLoader())));
+        this.globalCode = ((String) in.readValue((String.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public PlusCode() {
+    }
 
     @JsonProperty("compound_code")
     public String getCompoundCode() {
@@ -78,6 +109,16 @@ public class PlusCode {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(compoundCode);
+        dest.writeValue(globalCode);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

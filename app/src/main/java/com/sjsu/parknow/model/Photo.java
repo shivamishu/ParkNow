@@ -1,10 +1,14 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "width"
 })
 @Generated("jsonschema2pojo")
-public class Photo {
+public class Photo implements Serializable, Parcelable
+{
 
     @JsonProperty("height")
     private Integer height;
@@ -32,6 +37,34 @@ public class Photo {
     private Integer width;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<Photo> CREATOR = new Creator<Photo>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public Photo createFromParcel(android.os.Parcel in) {
+            return new Photo(in);
+        }
+
+        public Photo[] newArray(int size) {
+            return (new Photo[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = 4068539085798206758L;
+
+    protected Photo(android.os.Parcel in) {
+        this.height = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        in.readList(this.htmlAttributions, (java.lang.String.class.getClassLoader()));
+        this.photoReference = ((String) in.readValue((String.class.getClassLoader())));
+        this.width = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public Photo() {
+    }
 
     @JsonProperty("height")
     public Integer getHeight() {
@@ -113,6 +146,18 @@ public class Photo {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(height);
+        dest.writeList(htmlAttributions);
+        dest.writeValue(photoReference);
+        dest.writeValue(width);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

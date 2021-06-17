@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,9 +75,11 @@ public class NearbyFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        googleResponse = NearbyFragmentArgs.fromBundle(getArguments()).getGooglePlacesResults();
+        googleResponse = NearbyFragmentArgs.fromBundle(getArguments()).getGoogleResponse();
         userLocation = NearbyFragmentArgs.fromBundle(getArguments()).getUserLocation();
-        data = googleResponse.getResults();
+        if(googleResponse != null) {
+            data = googleResponse.getResults();
+        }
     }
 
     @Override
@@ -84,9 +87,9 @@ public class NearbyFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentNearbyBinding.inflate(inflater, container, false);
-//        RecyclerView recyclerCard = binding.cardRecyclerView;
-//        recyclerCard.setAdapter(new MainCardAdapter(this, data));
-        // Inflate the layout for this fragment
+        RecyclerView recyclerCard = binding.cardRecyclerView;
+       recyclerCard.setAdapter(new MainCardAdapter(getActivity().getApplicationContext(), data));
+//        // Inflate the layout for this fragment
 //        return inflater.inflate(R.layout.fragment_nearby, container, false);
         return binding.getRoot();
     }
@@ -101,17 +104,20 @@ public class NearbyFragment extends Fragment {
         public TextView openNowView;
         public RatingBar ratingBarView;
         public ImageView imageView;
+        public TextView addressView;
 
         public MainCardViewHolder(@NonNull View itemView) {
             super(itemView);
             titleView = itemView.findViewById(R.id.titleView);
             timeView = itemView.findViewById(R.id.time);
-            eta = itemView.findViewById(R.id.eta);
+//            eta = itemView.findViewById(R.id.eta);
             distanceView = itemView.findViewById(R.id.distance);
             item = itemView;
-            openNowView = itemView.findViewById(R.id.opening);
+            openNowView = itemView.findViewById(R.id.open);
             ratingBarView = itemView.findViewById(R.id.ratingBar);
             imageView = itemView.findViewById(R.id.imageView);
+            addressView = itemView.findViewById(R.id.parking_address);
+
         }
 
         @Override
@@ -123,10 +129,10 @@ public class NearbyFragment extends Fragment {
     }
 
     public class MainCardAdapter extends RecyclerView.Adapter<NearbyFragment.MainCardViewHolder> {
-        private ArrayList<GoogleResponse> dataList;
+        private ArrayList<Result> dataList;
         private Context context;
 
-        public MainCardAdapter(Context context, ArrayList<GoogleResponse> dataList) {
+        public MainCardAdapter(Context context, ArrayList<Result> dataList) {
             this.context = context;
             this.dataList = dataList;
         }
@@ -142,7 +148,41 @@ public class NearbyFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MainCardViewHolder holder, int position) {
+            Result item = dataList.get(position);
+//            Calendar cal = Calendar.getInstance();
+//            TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+//            String durationValue = item.getDurationValue();
+//            holder.timeView.setText("Time: " + item.getDurationText());
+            holder.timeView.setText("Time: 5 mins (ETA: 14:35:00)");
+//            cal.add(Calendar.SECOND, Integer.parseInt(durationValue));
+//            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+//            dateFormat.setTimeZone(tz);
+//            String time = dateFormat.format(cal.getTime());
+//            holder.timeView.setText("ETA: " + time);
+//            holder.timeView.setText("ETA: 14:35:00");
+            holder.titleView.setText(item.getName());
+//            holder.distanceView.setText("Distance: " + item.getDistanceText());
+            holder.distanceView.setText("Distance: 0.6 miles");
+            if(item.getOpeningHours() != null){
+                Boolean isOpen = item.getOpeningHours().getOpenNow();
+                holder.openNowView.setText(isOpen ? "Open" : "Closed");
+                if (isOpen){
+                    holder.openNowView.setText("Open");
+                    holder.openNowView.setTextColor(ContextCompat.getColor(context, R.color.green));
+                }else{
+                    holder.openNowView.setText("Closed");
+                    holder.openNowView.setTextColor(ContextCompat.getColor(context, R.color.red));
+                }
+            }else{
+                holder.openNowView.setText("Open/Closed N.A.");
+            }
 
+            holder.addressView.setText("Address: " + item.getVicinity());
+            holder.imageView.setImageResource(R.drawable.parking_alt_2);
+            if (item.getRating() != null) {
+//                holder.ratingBarView.setRating(Float.parseFloat(item.getRating()));
+                holder.ratingBarView.setRating(item.getRating());
+            }
         }
 
         @Override

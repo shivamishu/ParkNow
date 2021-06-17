@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.FragmentMapsBinding;
 import com.sjsu.parknow.model.Geometry;
 import com.sjsu.parknow.model.GoogleResponse;
@@ -138,15 +139,24 @@ public class MapsFragment extends Fragment {
             map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    LatLng curLatLng = new LatLng(lastKnownLocation.getLatitude(),
-                            lastKnownLocation.getLongitude());
-                    curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-                    curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
-                    callAPI(curKnownLocation);
-                    map.clear();
-                    map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
-                    binding.inputSearch.setText(curKnownAddress);
-                    return false;
+                    if(lastKnownLocation == null){
+                        Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+//                        Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
+                        return  true;
+                    }else{
+                        LatLng curLatLng = new LatLng(lastKnownLocation.getLatitude(),
+                                lastKnownLocation.getLongitude());
+                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
+                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
+                        callAPI(curKnownLocation);
+                        map.clear();
+                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
+                        binding.inputSearch.setText(curKnownAddress);
+                        return false;
+
+                    }
+
                 }
             });
             if (locationPermissionGranted) {
@@ -154,25 +164,30 @@ public class MapsFragment extends Fragment {
                 locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
-                            lastKnownLocation = task.getResult();
-                            LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
-                                    lastKnownLocation.getLongitude());
-                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
-                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-                            if (lastKnownLocation != null) {
+
+//                            if (task.getResult() != null) {
+                                lastKnownLocation = task.getResult();
+                                LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
+                                        lastKnownLocation.getLongitude());
+                                curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
+                                curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
+                                callAPI(curKnownLocation);
                                 map.clear();
                                 map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
                                 binding.inputSearch.setText(curKnownAddress);
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-                            }
+//                            }
                         } else {
+                            Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+//                            Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
                             map.moveCamera(CameraUpdateFactory
                                     .newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-                            map.getUiSettings().setMyLocationButtonEnabled(false);
+                            map.getUiSettings().setMyLocationButtonEnabled(true);
                         }
                     }
                 });
@@ -236,7 +251,7 @@ public class MapsFragment extends Fragment {
                 map.getUiSettings().setMyLocationButtonEnabled(true);
             } else {
                 map.setMyLocationEnabled(false);
-                map.getUiSettings().setMyLocationButtonEnabled(false);
+                map.getUiSettings().setMyLocationButtonEnabled(true);
                 lastKnownLocation = null;
                 curKnownAddress = null;
                 getLocationPermission();
@@ -357,7 +372,7 @@ public class MapsFragment extends Fragment {
        GoogleResponse response = getGoogleResults();
         MapsFragmentDirections.ActionMapsFragmentToNearbyFragment action = MapsFragmentDirections.actionMapsFragmentToNearbyFragment(curKnownLocation, response);
         action.setUserLocation(curKnownLocation);
-        action.setGooglePlacesResults(response);
+        action.setGoogleResponse(response);
         Navigation.findNavController(view).navigate(action);
     }
     private void setGoogleResults(GoogleResponse results){

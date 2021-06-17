@@ -1,9 +1,13 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "lng"
 })
 @Generated("jsonschema2pojo")
-public class Northeast {
+public class Northeast implements Serializable, Parcelable
+{
 
     @JsonProperty("lat")
     private Double lat;
@@ -25,6 +30,32 @@ public class Northeast {
     private Double lng;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<Northeast> CREATOR = new Creator<Northeast>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public Northeast createFromParcel(android.os.Parcel in) {
+            return new Northeast(in);
+        }
+
+        public Northeast[] newArray(int size) {
+            return (new Northeast[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = 6998037160244213968L;
+
+    protected Northeast(android.os.Parcel in) {
+        this.lat = ((Double) in.readValue((Double.class.getClassLoader())));
+        this.lng = ((Double) in.readValue((Double.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public Northeast() {
+    }
 
     @JsonProperty("lat")
     public Double getLat() {
@@ -78,6 +109,16 @@ public class Northeast {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(lat);
+        dest.writeValue(lng);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

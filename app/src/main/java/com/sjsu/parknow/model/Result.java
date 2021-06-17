@@ -1,10 +1,14 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,7 +34,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "vicinity"
 })
 @Generated("jsonschema2pojo")
-public class Result {
+public class Result implements Serializable, Parcelable
+{
 
     @JsonProperty("business_status")
     private String businessStatus;
@@ -49,7 +54,7 @@ public class Result {
     @JsonProperty("plus_code")
     private PlusCode plusCode;
     @JsonProperty("rating")
-    private Integer rating;
+    private Float rating;
     @JsonProperty("reference")
     private String reference;
     @JsonProperty("scope")
@@ -62,6 +67,44 @@ public class Result {
     private String vicinity;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<Result> CREATOR = new Creator<Result>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public Result createFromParcel(android.os.Parcel in) {
+            return new Result(in);
+        }
+
+        public Result[] newArray(int size) {
+            return (new Result[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = 5398711656437527336L;
+
+    protected Result(android.os.Parcel in) {
+        this.businessStatus = ((String) in.readValue((String.class.getClassLoader())));
+        this.geometry = ((Geometry) in.readValue((Geometry.class.getClassLoader())));
+        this.icon = ((String) in.readValue((String.class.getClassLoader())));
+        this.name = ((String) in.readValue((String.class.getClassLoader())));
+        this.openingHours = ((OpeningHours) in.readValue((OpeningHours.class.getClassLoader())));
+        in.readList(this.photos, (com.sjsu.parknow.model.Photo.class.getClassLoader()));
+        this.placeId = ((String) in.readValue((String.class.getClassLoader())));
+        this.plusCode = ((PlusCode) in.readValue((PlusCode.class.getClassLoader())));
+        this.rating = ((Float) in.readValue((Float.class.getClassLoader())));
+        this.reference = ((String) in.readValue((String.class.getClassLoader())));
+        this.scope = ((String) in.readValue((String.class.getClassLoader())));
+        in.readList(this.types, (java.lang.String.class.getClassLoader()));
+        this.userRatingsTotal = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.vicinity = ((String) in.readValue((String.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public Result() {
+    }
 
     @JsonProperty("business_status")
     public String getBusinessStatus() {
@@ -144,12 +187,12 @@ public class Result {
     }
 
     @JsonProperty("rating")
-    public Integer getRating() {
+    public Float getRating() {
         return rating;
     }
 
     @JsonProperty("rating")
-    public void setRating(Integer rating) {
+    public void setRating(Float rating) {
         this.rating = rating;
     }
 
@@ -283,6 +326,28 @@ public class Result {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(businessStatus);
+        dest.writeValue(geometry);
+        dest.writeValue(icon);
+        dest.writeValue(name);
+        dest.writeValue(openingHours);
+        dest.writeList(photos);
+        dest.writeValue(placeId);
+        dest.writeValue(plusCode);
+        dest.writeValue(rating);
+        dest.writeValue(reference);
+        dest.writeValue(scope);
+        dest.writeList(types);
+        dest.writeValue(userRatingsTotal);
+        dest.writeValue(vicinity);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

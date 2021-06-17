@@ -1,9 +1,13 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "viewport"
 })
 @Generated("jsonschema2pojo")
-public class Geometry {
+public class Geometry implements Serializable, Parcelable
+{
 
     @JsonProperty("location")
     private Location location;
@@ -25,6 +30,32 @@ public class Geometry {
     private Viewport viewport;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<Geometry> CREATOR = new Creator<Geometry>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public Geometry createFromParcel(android.os.Parcel in) {
+            return new Geometry(in);
+        }
+
+        public Geometry[] newArray(int size) {
+            return (new Geometry[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = -4085903202717999241L;
+
+    protected Geometry(android.os.Parcel in) {
+        this.location = ((Location) in.readValue((Location.class.getClassLoader())));
+        this.viewport = ((Viewport) in.readValue((Viewport.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public Geometry() {
+    }
 
     @JsonProperty("location")
     public Location getLocation() {
@@ -78,6 +109,16 @@ public class Geometry {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(location);
+        dest.writeValue(viewport);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

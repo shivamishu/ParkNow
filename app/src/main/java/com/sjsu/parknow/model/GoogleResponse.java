@@ -1,11 +1,15 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,7 +25,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "status"
 })
 @Generated("jsonschema2pojo")
-public class GoogleResponse {
+public class GoogleResponse implements Serializable, Parcelable
+{
 
     @JsonProperty("html_attributions")
     private List<Object> htmlAttributions = null;
@@ -33,6 +38,34 @@ public class GoogleResponse {
     private String status;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<GoogleResponse> CREATOR = new Creator<GoogleResponse>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public GoogleResponse createFromParcel(android.os.Parcel in) {
+            return new GoogleResponse(in);
+        }
+
+        public GoogleResponse[] newArray(int size) {
+            return (new GoogleResponse[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = -8605699393249916612L;
+
+    protected GoogleResponse(android.os.Parcel in) {
+        in.readList(this.htmlAttributions, (java.lang.Object.class.getClassLoader()));
+        this.nextPageToken = ((String) in.readValue((String.class.getClassLoader())));
+        in.readList(this.results, (com.sjsu.parknow.model.Result.class.getClassLoader()));
+        this.status = ((String) in.readValue((String.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public GoogleResponse() {
+    }
 
     @JsonProperty("html_attributions")
     public List<Object> getHtmlAttributions() {
@@ -114,6 +147,18 @@ public class GoogleResponse {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeList(htmlAttributions);
+        dest.writeValue(nextPageToken);
+        dest.writeList(results);
+        dest.writeValue(status);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

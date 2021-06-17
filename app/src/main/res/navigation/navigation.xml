@@ -26,9 +26,11 @@
         tools:layout="@layout/fragment_nearby" >
         <argument
             android:name="userLocation"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <argument
-            android:name="googlePlacesResults"
-            app:argType="com.sjsu.parknow.model.GoogleResponse" />
+            android:name="googleResponse"
+            app:argType="com.sjsu.parknow.model.GoogleResponse"
+            app:nullable="true" />
     </fragment>
 </navigation>

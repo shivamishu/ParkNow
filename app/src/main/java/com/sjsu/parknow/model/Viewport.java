@@ -1,9 +1,13 @@
 
 package com.sjsu.parknow.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import android.os.Parcelable.Creator;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "southwest"
 })
 @Generated("jsonschema2pojo")
-public class Viewport {
+public class Viewport implements Serializable, Parcelable
+{
 
     @JsonProperty("northeast")
     private Northeast northeast;
@@ -25,6 +30,32 @@ public class Viewport {
     private Southwest southwest;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public final static Creator<Viewport> CREATOR = new Creator<Viewport>() {
+
+
+        @SuppressWarnings({
+            "unchecked"
+        })
+        public Viewport createFromParcel(android.os.Parcel in) {
+            return new Viewport(in);
+        }
+
+        public Viewport[] newArray(int size) {
+            return (new Viewport[size]);
+        }
+
+    }
+    ;
+    private final static long serialVersionUID = -4049984829089613113L;
+
+    protected Viewport(android.os.Parcel in) {
+        this.northeast = ((Northeast) in.readValue((Northeast.class.getClassLoader())));
+        this.southwest = ((Southwest) in.readValue((Southwest.class.getClassLoader())));
+        this.additionalProperties = ((Map<String, Object> ) in.readValue((Map.class.getClassLoader())));
+    }
+
+    public Viewport() {
+    }
 
     @JsonProperty("northeast")
     public Northeast getNortheast() {
@@ -78,6 +109,16 @@ public class Viewport {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    public void writeToParcel(android.os.Parcel dest, int flags) {
+        dest.writeValue(northeast);
+        dest.writeValue(southwest);
+        dest.writeValue(additionalProperties);
+    }
+
+    public int describeContents() {
+        return  0;
     }
 
 }

@@ -13,11 +13,13 @@
     <string name="home">Home</string>
     <string name="about">About</string>
     <string name="enter_address">Enter Destination Address</string>
-    <string name="openList">Open List</string>
+    <string name="openList">List view of nearby parking locations</string>
     <string name="nearbyLoc">Nearby Parking Locations</string>
     <string name="placeTitle">Sample Place</string>
     <string name="time">Time: </string>
     <string name="distance">Distance: </string>
     <string name="eta">ETA: </string>
     <string name="open">Open</string>
+    <string name="address">Address: </string>
+    <string name="loc_error">Please turn on GPS location</string>
 </resources>
