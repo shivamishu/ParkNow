@@ -11,9 +11,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +48,14 @@ public class MainActivity extends AppCompatActivity {
                 //close drawer
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
+            }
+        });
+        FloatingActionButton fab = findViewById(R.id.add_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Parking Location Stored", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
 
