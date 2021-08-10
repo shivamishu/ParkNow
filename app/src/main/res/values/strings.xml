@@ -22,4 +22,5 @@
     <string name="open">Open</string>
     <string name="address">Address: </string>
     <string name="loc_error">Please turn on GPS location</string>
+    <string name="save_spot">Save Parking Spot</string>
 </resources>

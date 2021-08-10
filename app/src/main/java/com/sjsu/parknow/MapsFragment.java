@@ -1,5 +1,6 @@
 package com.sjsu.parknow;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -139,26 +140,69 @@ public class MapsFragment extends Fragment {
             map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    if(lastKnownLocation == null){
+                    if (lastKnownLocation == null) {
                         Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
 //                        Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
-                        return  true;
-                    }else{
-                        LatLng curLatLng = new LatLng(lastKnownLocation.getLatitude(),
-                                lastKnownLocation.getLongitude());
-                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
-                        callAPI(curKnownLocation);
-                        map.clear();
-                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
-                        binding.inputSearch.setText(curKnownAddress);
+                        return true;
+                    } else {
+//                        LatLng curLatLng = new LatLng(lastKnownLocation.getLatitude(),
+//                                lastKnownLocation.getLongitude());
+//                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
+//                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
+//                        showSnackBar(curKnownLocation, curKnownAddress);
+//                        callAPI(curKnownLocation);
+//                        map.clear();
+//                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
+//                        binding.inputSearch.setText(curKnownAddress);
+                        callFusedLocationProviderClient(true);
                         return false;
 
                     }
 
                 }
             });
+//            if (locationPermissionGranted) {
+//                Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
+//                locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Location> task) {
+//                        if (task.isSuccessful() && task.getResult() != null) {
+//                            // Set the map's camera position to the current location of the device.
+//
+////                            if (task.getResult() != null) {
+//                            lastKnownLocation = task.getResult();
+//                            LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
+//                                    lastKnownLocation.getLongitude());
+//                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
+//                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
+//                            callAPI(curKnownLocation);
+//                            map.clear();
+//                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
+//                            binding.inputSearch.setText(curKnownAddress);
+//                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+////                            }
+//                        } else {
+//                            Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
+//                                    .setAction("Action", null).show();
+////                            Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
+//                            Log.d(TAG, "Current location is null. Using defaults.");
+//                            Log.e(TAG, "Exception: %s", task.getException());
+//                            map.moveCamera(CameraUpdateFactory
+//                                    .newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+//                            map.getUiSettings().setMyLocationButtonEnabled(true);
+//                        }
+//                    }
+//                });
+//            }
+            callFusedLocationProviderClient(false);
+        } catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage(), e);
+        }
+    }
+
+    public void callFusedLocationProviderClient(Boolean showSnackBar) {
+        try {
             if (locationPermissionGranted) {
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
@@ -168,16 +212,19 @@ public class MapsFragment extends Fragment {
                             // Set the map's camera position to the current location of the device.
 
 //                            if (task.getResult() != null) {
-                                lastKnownLocation = task.getResult();
-                                LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
-                                        lastKnownLocation.getLongitude());
-                                curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
-                                curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-                                callAPI(curKnownLocation);
-                                map.clear();
-                                map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
-                                binding.inputSearch.setText(curKnownAddress);
-                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+                            lastKnownLocation = task.getResult();
+                            LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
+                                    lastKnownLocation.getLongitude());
+                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
+                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
+//                            if(showSnackBar == true){
+                            showSnackBar(curKnownLocation, curKnownAddress);
+//                            }
+                            callAPI(curKnownLocation);
+                            map.clear();
+                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
+                            binding.inputSearch.setText(curKnownAddress);
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
 //                            }
                         } else {
                             Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
@@ -196,7 +243,19 @@ public class MapsFragment extends Fragment {
             Log.e("Exception: %s", e.getMessage(), e);
         }
     }
+
     // [END maps_current_place_get_device_location]
+    //Display SnackBar for dev purpose only. Remove it later!
+    public void showSnackBar(String location, String address) {
+        Snackbar snackbar = Snackbar.make(binding.mapRelLayout, "Coordinates: " + location, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("dismiss", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+    }
 
     /**
      * Prompts the user for permission to use the device location.
@@ -265,7 +324,8 @@ public class MapsFragment extends Fragment {
         callGoogleNearbyAPI(location);
         callLambdaAPI(location);
     }
-    private void callGoogleNearbyAPI(String location){
+
+    private void callGoogleNearbyAPI(String location) {
         iGooglePlaces = GooglePlacesAPI.getAPIService();
         iGooglePlaces.getParkingPlaces(BuildConfig.MAPS_API_KEY, "parking", "1000", curKnownLocation).enqueue(new Callback<GoogleResponse>() {
             @Override
@@ -286,7 +346,8 @@ public class MapsFragment extends Fragment {
             }
         });
     }
-    private void callLambdaAPI(String location){
+
+    private void callLambdaAPI(String location) {
         //Call Lambda API to fetch the nearby parking locations stored in our database.
         //It need not be a Lambda API, we could even use Firebase directly to get the required results
     }
@@ -298,8 +359,9 @@ public class MapsFragment extends Fragment {
         }
 //        binding.resultImageView.setImageBitmap(getBitMapImage());
     }
+
     private void setResultMarkers(ArrayList<Result> results) {
-        for(Result res : results){
+        for (Result res : results) {
             Geometry geo = res.getGeometry();
             LatLng latLng = new LatLng(geo.getLocation().getLat(), geo.getLocation().getLng());
             map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.park_marker)).position(latLng).title(res.getName()));
@@ -333,7 +395,8 @@ public class MapsFragment extends Fragment {
             public void onClick(View view) {
                 Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.openList), Toast.LENGTH_LONG).show();
                 openNearbyList(view);
-            }});
+            }
+        });
 //        return inflater.inflate(R.layout.fragment_maps, container, false);
         return binding.getRoot();
     }
@@ -368,17 +431,19 @@ public class MapsFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void openNearbyList(View view){
-       GoogleResponse response = getGoogleResults();
+    private void openNearbyList(View view) {
+        GoogleResponse response = getGoogleResults();
         MapsFragmentDirections.ActionMapsFragmentToNearbyFragment action = MapsFragmentDirections.actionMapsFragmentToNearbyFragment(curKnownLocation, response);
         action.setUserLocation(curKnownLocation);
         action.setGoogleResponse(response);
         Navigation.findNavController(view).navigate(action);
     }
-    private void setGoogleResults(GoogleResponse results){
+
+    private void setGoogleResults(GoogleResponse results) {
         this.googleResults = results;
     }
-    private GoogleResponse getGoogleResults(){
+
+    private GoogleResponse getGoogleResults() {
         return googleResults;
     }
 
