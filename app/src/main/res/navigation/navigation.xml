@@ -32,5 +32,9 @@
             android:name="googleResponse"
             app:argType="com.sjsu.parknow.model.GoogleResponse"
             app:nullable="true" />
+        <argument
+            android:name="parkingSpotResponse"
+            app:argType="com.sjsu.parknow.model.SpotsResponse"
+            app:nullable="true" />
     </fragment>
 </navigation>

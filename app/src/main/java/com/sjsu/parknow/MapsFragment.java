@@ -42,8 +42,12 @@ import com.sjsu.parknow.databinding.FragmentMapsBinding;
 import com.sjsu.parknow.model.Geometry;
 import com.sjsu.parknow.model.GoogleResponse;
 import com.sjsu.parknow.model.Result;
+import com.sjsu.parknow.model.SpotResult;
+import com.sjsu.parknow.model.SpotsResponse;
 import com.sjsu.parknow.network.GooglePlacesAPI;
 import com.sjsu.parknow.network.IGooglePlaces;
+import com.sjsu.parknow.network.IParkingSpots;
+import com.sjsu.parknow.network.ParkingSpotsSearchAPI;
 import com.sjsu.parknow.utils.PlaceAutoComplete;
 
 import java.util.ArrayList;
@@ -58,6 +62,7 @@ public class MapsFragment extends Fragment {
     private FragmentMapsBinding binding;
     private GoogleMap map;
     private GoogleResponse googleResults;
+    private SpotsResponse parkingSpotsResults;
     private CameraPosition cameraPosition;
     private final LatLng defaultLocation = new LatLng(37.00, -122.00);
     private static final int DEFAULT_ZOOM = 15;
@@ -72,6 +77,8 @@ public class MapsFragment extends Fragment {
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient fusedLocationProviderClient;
     private IGooglePlaces iGooglePlaces;
+    private IParkingSpots iParkingSpots;
+    private Marker savedMarker;
 
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -117,6 +124,8 @@ public class MapsFragment extends Fragment {
                     return infoWindow;
                 }
             });
+            //put back the stored car parking location from data store
+            setSavedMarkerPosition();
             // Prompt the user for permission.
             getLocationPermission();
             // Turn on the My Location layer and the related control on the map.
@@ -125,6 +134,16 @@ public class MapsFragment extends Fragment {
             getDeviceLocation();
         }
     };
+
+    private void setSavedMarkerPosition(){
+        LatLng savedMarkerLatLng = getSavedLocationFromDevice();
+        addParkedCarMarker(savedMarkerLatLng);
+    }
+    private LatLng getSavedLocationFromDevice(){
+        //add your code here to store LatLng (location coordinate of the parked car)
+        LatLng latLng = new LatLng(37.337105,-122.0379474); //sample location
+        return latLng;
+    }
 
     /**
      * Gets the current location of the device, and positions the map's camera.
@@ -151,7 +170,8 @@ public class MapsFragment extends Fragment {
 //                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
 //                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
 //                        showSnackBar(curKnownLocation, curKnownAddress);
-//                        callAPI(curKnownLocation);
+                          ////pass radius as well
+//                        callAPI(curKnownLocation, "");
 //                        map.clear();
 //                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
 //                        binding.inputSearch.setText(curKnownAddress);
@@ -176,7 +196,8 @@ public class MapsFragment extends Fragment {
 //                                    lastKnownLocation.getLongitude());
 //                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
 //                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-//                            callAPI(curKnownLocation);
+                              //pass radius as well
+//                            callAPI(curKnownLocation,"");
 //                            map.clear();
 //                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
 //                            binding.inputSearch.setText(curKnownAddress);
@@ -218,11 +239,17 @@ public class MapsFragment extends Fragment {
                             curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
                             curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
 //                            if(showSnackBar == true){
-                            showSnackBar(curKnownLocation, curKnownAddress);
+                            //showSnackBar(curKnownLocation, curKnownAddress);
 //                            }
-                            callAPI(curKnownLocation);
+                            //TODO: pass radius as well
+                            callAPI(curKnownLocation, "");
                             map.clear();
-                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
+                            if(savedMarker != null){
+                                addParkedCarMarker(latLng);
+                            }
+//                            marker to be added only when user presses save or automatically by app predictions
+//                            map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.car_marker)).position(latLng).title(curKnownAddress));
+//                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
                             binding.inputSearch.setText(curKnownAddress);
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
 //                            }
@@ -247,6 +274,7 @@ public class MapsFragment extends Fragment {
     // [END maps_current_place_get_device_location]
     //Display SnackBar for dev purpose only. Remove it later!
     public void showSnackBar(String location, String address) {
+
         Snackbar snackbar = Snackbar.make(binding.mapRelLayout, "Coordinates: " + location, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction("dismiss", new View.OnClickListener() {
             @Override
@@ -320,12 +348,12 @@ public class MapsFragment extends Fragment {
         }
     }
 
-    private void callAPI(String location) {
-        callGoogleNearbyAPI(location);
-        callLambdaAPI(location);
+    private void callAPI(String location,  String radius) {
+        callGoogleNearbyAPI(location, radius);
+        callParkingSpotsAPI(location, radius);
     }
 
-    private void callGoogleNearbyAPI(String location) {
+    private void callGoogleNearbyAPI(String location, String radius) {
         iGooglePlaces = GooglePlacesAPI.getAPIService();
         iGooglePlaces.getParkingPlaces(BuildConfig.MAPS_API_KEY, "parking", "1000", curKnownLocation).enqueue(new Callback<GoogleResponse>() {
             @Override
@@ -347,9 +375,26 @@ public class MapsFragment extends Fragment {
         });
     }
 
-    private void callLambdaAPI(String location) {
-        //Call Lambda API to fetch the nearby parking locations stored in our database.
-        //It need not be a Lambda API, we could even use Firebase directly to get the required results
+    private void callParkingSpotsAPI(String location, String radius) {
+        iParkingSpots = ParkingSpotsSearchAPI.getAPIService();
+        iParkingSpots.getParkingSpots("1000", curKnownLocation).enqueue(new Callback<SpotsResponse>() {
+            @Override
+            public void onResponse(Call<SpotsResponse> call, Response<SpotsResponse> response) {
+
+                if (response.isSuccessful()) {
+                    setSpotsResults(response.body());
+                    handleSpotsResponse(response.body().getResults());
+//                    binding.progressBar.setVisibility(View.GONE);
+                    Log.i("RESPONSE", "got results from API." + response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SpotsResponse> call, Throwable t) {
+//                binding.progressBar.setVisibility(View.GONE);
+                Log.e("ERROR", "Unable to call GET Parking spots API.");
+            }
+        });
     }
 
     public void handleResponse(ArrayList<Result> results) {
@@ -358,6 +403,20 @@ public class MapsFragment extends Fragment {
 //            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
         }
 //        binding.resultImageView.setImageBitmap(getBitMapImage());
+    }
+    public void handleSpotsResponse(ArrayList<SpotResult> results) {
+        if (results != null) {
+            setSpotResultMarkers(results);
+//            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
+        }
+//        binding.resultImageView.setImageBitmap(getBitMapImage());
+    }
+    private void setSpotResultMarkers(ArrayList<SpotResult> results) {
+        for (SpotResult res : results) {
+//            Geometry geo = res.getGeometry();
+            LatLng latLng = new LatLng(Double.parseDouble(res.getLatitude()), Double.parseDouble(res.getLongitude()));
+            map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.park_marker_spot_green)).position(latLng).title(getAddressFromLatLngCord(latLng).getAddressLine(0)));
+        }
     }
 
     private void setResultMarkers(ArrayList<Result> results) {
@@ -382,8 +441,13 @@ public class MapsFragment extends Fragment {
                 curKnownLocation = latLngCoordinates.latitude + "," + latLngCoordinates.longitude;
                 curKnownAddress = parent.getItemAtPosition(position).toString();
                 map.clear();
-                map.addMarker(new MarkerOptions().position(latLngCoordinates).title(curKnownAddress));
-                callAPI(curKnownLocation);
+                if(savedMarker != null){
+                    addParkedCarMarker(latLngCoordinates);
+                }
+//                map.addMarker(new MarkerOptions().position(latLngCoordinates).title(curKnownAddress));
+//                map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.car_marker)).position(latLngCoordinates).title(curKnownAddress));
+                //TODO: pass radius as well
+                callAPI(curKnownLocation, "");
                 binding.inputSearch.setText(curKnownAddress);
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngCoordinates, DEFAULT_ZOOM));
                 Log.i("Address : ", String.valueOf(latLngCoordinates));
@@ -391,14 +455,52 @@ public class MapsFragment extends Fragment {
                 in.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
             }
         });
+        //list view button
         binding.openList.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.openList), Toast.LENGTH_LONG).show();
                 openNearbyList(view);
             }
         });
+        //save parking spot button
+        binding.saveSpot.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Snackbar.make(binding.mapRelLayout, getString(R.string.save_spot_saved), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                if(savedMarker != null){
+                    savedMarker.remove();
+                    savedMarker = null;
+                }
+                addParkedCarMarker(null);
+                //add function call to save parking spot and mark position status in DB
+            }
+        });
+
+        //remove parking spot button
+        binding.removeSpot.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Snackbar.make(binding.mapRelLayout, getString(R.string.parking_spot_removed), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                savedMarker.remove();
+                savedMarker = null;
+                binding.cardRemoveSpot.setVisibility(View.GONE);
+
+
+            }
+        });
 //        return inflater.inflate(R.layout.fragment_maps, container, false);
         return binding.getRoot();
+    }
+
+    private void addParkedCarMarker(LatLng latLng){
+        if(latLng == null){
+            latLng = new LatLng(lastKnownLocation.getLatitude(),
+                    lastKnownLocation.getLongitude());
+        }
+        savedMarker = map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.car_marker)).position(latLng).title(curKnownAddress));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+
+        binding.cardRemoveSpot.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -433,9 +535,11 @@ public class MapsFragment extends Fragment {
 
     private void openNearbyList(View view) {
         GoogleResponse response = getGoogleResults();
-        MapsFragmentDirections.ActionMapsFragmentToNearbyFragment action = MapsFragmentDirections.actionMapsFragmentToNearbyFragment(curKnownLocation, response);
+        SpotsResponse spotsResponse = getSpotsResults();
+        MapsFragmentDirections.ActionMapsFragmentToNearbyFragment action = MapsFragmentDirections.actionMapsFragmentToNearbyFragment(curKnownLocation, response, spotsResponse);
         action.setUserLocation(curKnownLocation);
         action.setGoogleResponse(response);
+        action.setParkingSpotResponse(spotsResponse);
         Navigation.findNavController(view).navigate(action);
     }
 
@@ -443,8 +547,16 @@ public class MapsFragment extends Fragment {
         this.googleResults = results;
     }
 
+    private void setSpotsResults(SpotsResponse results) {
+        this.parkingSpotsResults = results;
+    }
+
     private GoogleResponse getGoogleResults() {
         return googleResults;
+    }
+
+    private SpotsResponse getSpotsResults() {
+        return parkingSpotsResults;
     }
 
     private LatLng getLatLngCordFromAddress(String address) {

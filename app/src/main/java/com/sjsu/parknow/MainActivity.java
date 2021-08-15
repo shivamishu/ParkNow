@@ -50,14 +50,14 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        FloatingActionButton fab = findViewById(R.id.add_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Parking Location Stored", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = findViewById(R.id.add_fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Parking Location Stored", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
 //        providers = Arrays.asList(
 //                new AuthUI.IdpConfig.EmailBuilder().build(),

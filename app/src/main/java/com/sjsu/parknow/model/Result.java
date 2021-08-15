@@ -1,4 +1,3 @@
-
 package com.sjsu.parknow.model;
 
 import java.io.Serializable;
@@ -18,20 +17,20 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "business_status",
-    "geometry",
-    "icon",
-    "name",
-    "opening_hours",
-    "photos",
-    "place_id",
-    "plus_code",
-    "rating",
-    "reference",
-    "scope",
-    "types",
-    "user_ratings_total",
-    "vicinity"
+        "business_status",
+        "geometry",
+        "icon",
+        "name",
+        "opening_hours",
+        "photos",
+        "place_id",
+        "plus_code",
+        "rating",
+        "reference",
+        "scope",
+        "types",
+        "user_ratings_total",
+        "vicinity",
 })
 @Generated("jsonschema2pojo")
 public class Result implements Serializable, Parcelable
@@ -71,7 +70,7 @@ public class Result implements Serializable, Parcelable
 
 
         @SuppressWarnings({
-            "unchecked"
+                "unchecked"
         })
         public Result createFromParcel(android.os.Parcel in) {
             return new Result(in);
@@ -81,8 +80,7 @@ public class Result implements Serializable, Parcelable
             return (new Result[size]);
         }
 
-    }
-    ;
+    };
     private final static long serialVersionUID = 5398711656437527336L;
 
     protected Result(android.os.Parcel in) {

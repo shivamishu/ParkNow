@@ -23,4 +23,9 @@
     <string name="address">Address: </string>
     <string name="loc_error">Please turn on GPS location</string>
     <string name="save_spot">Save Parking Spot</string>
+    <string name="save_spot_saved">Your parking spot is saved</string>
+    <string name="parking_spot_removed">Your parking spot is released</string>
+    <string name="list">List view</string>
+    <string name="save">Save spot</string>
+    <string name="remove">Release spot</string>
 </resources>

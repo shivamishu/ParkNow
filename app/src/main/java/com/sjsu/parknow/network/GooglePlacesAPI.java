@@ -6,7 +6,7 @@ public class GooglePlacesAPI {
 
     public static IGooglePlaces getAPIService() {
 
-        return com.sjsu.parknow.network.RetrofitClient.getClient(BASE_URL).create(IGooglePlaces.class);
+        return com.sjsu.parknow.network.RetrofitClient.getClientGoogle(BASE_URL).create(IGooglePlaces.class);
     }
 
 }

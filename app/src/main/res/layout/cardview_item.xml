@@ -23,7 +23,7 @@
             android:id="@+id/titleView"
             android:layout_width="0dp"
             android:layout_height="28dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
             android:text="@string/placeTitle"
             android:textAlignment="textStart"
@@ -35,34 +35,6 @@
             app:layout_constraintStart_toEndOf="@+id/imageView"
             app:layout_constraintTop_toTopOf="parent" />
 
-
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:text="@string/distance"
-            android:textAlignment="textStart"
-            app:layout_constraintBottom_toTopOf="@+id/time"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.70"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/titleView" />
-
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:text="@string/time"
-            android:textAlignment="textStart"
-            app:layout_constraintBottom_toTopOf="@+id/open"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.70"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/distance" />
 
         <!--        <TextView-->
         <!--            android:id="@+id/eta"-->
@@ -79,6 +51,21 @@
         <!--            app:layout_constraintTop_toBottomOf="@+id/time" />-->
 
         <TextView
+            android:id="@+id/distance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:text="@string/distance"
+            android:textAlignment="textStart"
+            app:layout_constraintBottom_toTopOf="@+id/open"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintTop_toBottomOf="@+id/titleView" />
+
+        <TextView
             android:id="@+id/parking_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -88,23 +75,25 @@
             android:textAlignment="textStart"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.70"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/time" />
+            app:layout_constraintTop_toBottomOf="@+id/open" />
 
         <TextView
             android:id="@+id/open"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="19dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
+            android:layout_marginBottom="5dp"
             android:text="@string/open"
             android:textAlignment="textStart"
             app:layout_constraintBottom_toTopOf="@+id/parking_address"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/time" />
+            app:layout_constraintTop_toBottomOf="@+id/distance"
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/imageView"

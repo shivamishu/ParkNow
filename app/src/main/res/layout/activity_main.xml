@@ -33,25 +33,25 @@
             app:headerLayout="@layout/nav_header"
             app:menu="@menu/nav_menu" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".MainActivity"
-            tools:ignore="HardcodedText">
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            tools:context=".MainActivity"-->
+<!--            tools:ignore="HardcodedText">-->
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/add_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:src="@drawable/ic_baseline_add_location_alt_24"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="SpeakableTextPresentCheck" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--                android:id="@+id/add_fab"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                android:src="@drawable/ic_baseline_add_location_alt_24"-->
+<!--                app:fabSize="normal"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                tools:ignore="SpeakableTextPresentCheck" />-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     </androidx.drawerlayout.widget.DrawerLayout>
 

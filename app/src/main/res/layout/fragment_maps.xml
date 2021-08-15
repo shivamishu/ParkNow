@@ -74,44 +74,127 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="55dp"
-            android:layout_height="55dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="70dp"
             android:layout_marginEnd="10dp"
             android:background="@null"
             android:elevation="10dp"
+            app:cardBackgroundColor="#174f8a"
             app:cardCornerRadius="8dp">
 
-            <ImageButton
-                android:id="@+id/open_list"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:contentDescription="@string/openList"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_format_list_bulleted_24" />
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/open_list"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/openList"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_format_list_bulleted_24" />
+
+                <TextView
+                    android:id="@+id/textList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:text="@string/list"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="11sp" />
+            </RelativeLayout>
+
         </androidx.cardview.widget.CardView>
+
         <androidx.cardview.widget.CardView
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_alignParentBottom="true"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="140dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="30dp"
             android:background="@null"
             android:elevation="10dp"
+            app:cardBackgroundColor="#174f8a"
             app:cardCornerRadius="8dp">
-        <ImageButton
-            android:id="@+id/save_spot"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/save_spot"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_baseline_add_location_alt_24" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/save_spot"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/save_spot"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_add_location_alt_24" />
+
+                <TextView
+                    android:id="@+id/textSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:text="@string/save"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="11sp" />
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardRemoveSpot"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="210dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="30dp"
+            android:background="@null"
+            android:elevation="10dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#174f8a"
+            app:cardCornerRadius="8dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/remove_spot"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/save_spot"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_wrong_location_24" />
+
+                <TextView
+                    android:id="@+id/textRemove"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:text="@string/remove"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="11sp" />
+            </RelativeLayout>
+
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 </layout>
