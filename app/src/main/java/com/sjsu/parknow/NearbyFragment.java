@@ -1,8 +1,10 @@
 package com.sjsu.parknow;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.FragmentNearbyBinding;
 import com.sjsu.parknow.model.AdapterDataItem;
 import com.sjsu.parknow.model.GoogleResponse;
@@ -27,6 +30,8 @@ import com.sjsu.parknow.model.Result;
 import com.sjsu.parknow.model.SpotResult;
 import com.sjsu.parknow.model.SpotsResponse;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +49,7 @@ public class NearbyFragment extends Fragment {
     GoogleResponse googleResponse;
     SpotsResponse spotsResponse;
     String userLocation;
+    String userCurAddress;
 //    ArrayList<Result> data = new ArrayList<>();
     ArrayList<AdapterDataItem> adapterData = new ArrayList<>();
     // TODO: Rename parameter arguments, choose names that match
@@ -91,6 +97,11 @@ public class NearbyFragment extends Fragment {
         googleResponse = NearbyFragmentArgs.fromBundle(getArguments()).getGoogleResponse();
         spotsResponse = NearbyFragmentArgs.fromBundle(getArguments()).getParkingSpotResponse();
         userLocation = NearbyFragmentArgs.fromBundle(getArguments()).getUserLocation();
+        String[] locs = userLocation.split(",");
+        Double latitude = Double.valueOf(locs[0]);
+        Double longitude = Double.valueOf(locs[1]);
+        LatLng userLatLng = new LatLng(latitude, longitude);
+        userCurAddress = getAddressFromLatLngCord(userLatLng).getAddressLine(0);
 
         if(spotsResponse != null){
 
@@ -205,6 +216,22 @@ public class NearbyFragment extends Fragment {
             this.dataList = dataList;
         }
 
+        public String encodeAddressString(String address) {
+            String currAddressString = address;
+            try {
+                currAddressString = currAddressString.replaceAll("\\/", "");
+                currAddressString = currAddressString.replaceAll("\\,", ",+");
+                currAddressString = currAddressString.replaceAll("\\ ", "+");
+                currAddressString = currAddressString.replaceAll("\\++", "+");
+                currAddressString = URLEncoder.encode(currAddressString, "utf-8");
+                currAddressString = currAddressString.replaceAll("\\%2C", ",");
+                currAddressString = currAddressString.replaceAll("\\%2B", "+");
+            } catch (
+                    UnsupportedEncodingException err) {
+                err.printStackTrace();
+            }
+            return currAddressString;
+        }
 
         @NonNull
         @Override
@@ -257,6 +284,15 @@ public class NearbyFragment extends Fragment {
             }else{
                 holder.ratingBarView.setVisibility(View.GONE);
             }
+            //open google maps
+            holder.titleView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    String directionAddressString = encodeAddressString(item.getAddress());
+                    String mapsURL = "https://www.google.com/maps/dir/" + userCurAddress +  "/" + directionAddressString;   //used for opening google maps;
+                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(mapsURL));
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override
