@@ -472,7 +472,8 @@ public class MapsFragment extends Fragment {
                     savedMarker = null;
                 }
                 addParkedCarMarker(null);
-                //add function call to save parking spot and mark position status in DB
+                //TODO: add function call to save parking spot in device
+                //TODO: add function call mark position status in DB
             }
         });
 

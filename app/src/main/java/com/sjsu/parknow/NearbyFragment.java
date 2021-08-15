@@ -2,10 +2,13 @@ package com.sjsu.parknow;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -257,7 +260,7 @@ public class NearbyFragment extends Fragment {
 //            holder.timeView.setText("ETA: 14:35:00");
             holder.titleView.setText(item.getName());
 //            holder.distanceView.setText("Distance: " + item.getDistanceText());
-            holder.distanceView.setText("Distance: " + item.getDistance() + "meters");
+            holder.distanceView.setText("Distance: " + item.getDistance() + " meters");
             if(item.getOpenNow() != null){
                 Boolean isOpen = item.getOpenNow();
                 holder.openNowView.setText(isOpen ? "Open" : "Closed");
@@ -285,6 +288,9 @@ public class NearbyFragment extends Fragment {
                 holder.ratingBarView.setVisibility(View.GONE);
             }
             //open google maps
+//            holder.titleView.setMovementMethod(LinkMovementMethod.getInstance());
+            holder.titleView.setPaintFlags(holder.titleView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            holder.titleView.setText(item.getName());
             holder.titleView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     String directionAddressString = encodeAddressString(item.getAddress());
