@@ -62,6 +62,50 @@ if (record.eventName == 'INSERT') {
                     }
             });
 }
+             if (record.eventName == 'MODIFY') {
+            console.log(record.eventID);
+            console.log(record.eventName);
+            console.log('DynamoDB Record: %j', record.dynamodb);
+            const latitude = record.dynamodb.NewImage.latitude.N;
+            const longitude = record.dynamodb.NewImage.longitude.N;
+            const rediskey = record.dynamodb.NewImage.id.S;
+            const parkingstatus = record.dynamodb.NewImage.parkingstatus.S;
+
+            console.log('redis connected lng_lat_rediskey  ' + longitude + '    ' + latitude + '   ' + rediskey);
+            console.log('after client initialization');
+            client.on('connect', function(result) { console.log('connected'); });
+            if (parkingstatus == "parked") {
+                client.send_command('ZREM', ['parkingstalls',
+                        rediskey
+                    ],
+                    (error, reply) => {
+                        client.quit();
+                        if (error) {
+                            throw error
+                        }
+                        else {
+                            console.log(reply);
+                        }
+                    });
+
+            }
+            if (parkingstatus == "available") {
+                client.send_command('GEOADD', ['parkingstalls',
+                        longitude,
+                        latitude,
+                        rediskey
+                    ],
+                    (error, reply) => {
+                        client.quit();
+                        if (error) {
+                            throw error
+                        }
+                        else {
+                            console.log(reply);
+                        }
+                    });
+            }
+        }
     });
     callback(null, "message1");
 
