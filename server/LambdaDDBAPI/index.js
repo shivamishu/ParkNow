@@ -6,6 +6,9 @@ exports.handler = function(event, context, callback) {
     var operation = event.operation;
     if (event.tableName) {
         event.payload.TableName = event.tableName;
+        event.payload.Item = event.payload.item;
+        const DateNow = Date.now();
+        event.payload.Item.lastmodifiedtimestamp = new Date(DateNow).toString();
     }
 
     switch (operation) {
@@ -19,7 +22,9 @@ exports.handler = function(event, context, callback) {
             var id = event.payload.Item.id;
             var parkingstatus = event.payload.Item.parkingstatus;
             // var lastmodifiedtimestamp = event.payload.Item.lastmodifiedtimestamp;
-            var lastmodifiedtimestamp = new Date();
+            const DateNow = Date.now();
+            var lastmodifiedtimestamp = new Date(DateNow).toString();
+
 
             var userid = event.payload.Item.userid;
             var params = {
