@@ -1,12 +1,12 @@
 package com.sjsu.parknow;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,13 +41,18 @@ import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.FragmentMapsBinding;
 import com.sjsu.parknow.model.Geometry;
 import com.sjsu.parknow.model.GoogleResponse;
+import com.sjsu.parknow.model.Item;
+import com.sjsu.parknow.model.Payload;
+import com.sjsu.parknow.model.Post;
 import com.sjsu.parknow.model.Result;
 import com.sjsu.parknow.model.SpotResult;
 import com.sjsu.parknow.model.SpotsResponse;
 import com.sjsu.parknow.network.GooglePlacesAPI;
 import com.sjsu.parknow.network.IGooglePlaces;
 import com.sjsu.parknow.network.IParkingSpots;
+import com.sjsu.parknow.network.IPostCallParkingSpots;
 import com.sjsu.parknow.network.ParkingSpotsSearchAPI;
+import com.sjsu.parknow.network.PostCallAPI;
 import com.sjsu.parknow.utils.PlaceAutoComplete;
 
 import java.util.ArrayList;
@@ -56,6 +61,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.POST;
 
 public class MapsFragment extends Fragment {
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -79,6 +87,7 @@ public class MapsFragment extends Fragment {
     private IGooglePlaces iGooglePlaces;
     private IParkingSpots iParkingSpots;
     private Marker savedMarker;
+    private IPostCallParkingSpots iPostCallParkingSpots;
 
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -135,13 +144,14 @@ public class MapsFragment extends Fragment {
         }
     };
 
-    private void setSavedMarkerPosition(){
+    private void setSavedMarkerPosition() {
         LatLng savedMarkerLatLng = getSavedLocationFromDevice();
         addParkedCarMarker(savedMarkerLatLng);
     }
-    private LatLng getSavedLocationFromDevice(){
+
+    private LatLng getSavedLocationFromDevice() {
         //add your code here to store LatLng (location coordinate of the parked car)
-        LatLng latLng = new LatLng(37.337105,-122.0379474); //sample location
+        LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
         return latLng;
     }
 
@@ -170,7 +180,7 @@ public class MapsFragment extends Fragment {
 //                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
 //                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
 //                        showSnackBar(curKnownLocation, curKnownAddress);
-                          ////pass radius as well
+                        ////pass radius as well
 //                        callAPI(curKnownLocation, "");
 //                        map.clear();
 //                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
@@ -196,7 +206,7 @@ public class MapsFragment extends Fragment {
 //                                    lastKnownLocation.getLongitude());
 //                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
 //                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-                              //pass radius as well
+            //pass radius as well
 //                            callAPI(curKnownLocation,"");
 //                            map.clear();
 //                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
@@ -244,7 +254,7 @@ public class MapsFragment extends Fragment {
                             //TODO: pass radius as well
                             callAPI(curKnownLocation, "");
                             map.clear();
-                            if(savedMarker != null){
+                            if (savedMarker != null) {
                                 addParkedCarMarker(latLng);
                             }
 //                            marker to be added only when user presses save or automatically by app predictions
@@ -348,7 +358,7 @@ public class MapsFragment extends Fragment {
         }
     }
 
-    private void callAPI(String location,  String radius) {
+    private void callAPI(String location, String radius) {
         callGoogleNearbyAPI(location, radius);
         callParkingSpotsAPI(location, radius);
     }
@@ -404,6 +414,7 @@ public class MapsFragment extends Fragment {
         }
 //        binding.resultImageView.setImageBitmap(getBitMapImage());
     }
+
     public void handleSpotsResponse(ArrayList<SpotResult> results) {
         if (results != null) {
             setSpotResultMarkers(results);
@@ -411,6 +422,7 @@ public class MapsFragment extends Fragment {
         }
 //        binding.resultImageView.setImageBitmap(getBitMapImage());
     }
+
     private void setSpotResultMarkers(ArrayList<SpotResult> results) {
         for (SpotResult res : results) {
 //            Geometry geo = res.getGeometry();
@@ -441,7 +453,7 @@ public class MapsFragment extends Fragment {
                 curKnownLocation = latLngCoordinates.latitude + "," + latLngCoordinates.longitude;
                 curKnownAddress = parent.getItemAtPosition(position).toString();
                 map.clear();
-                if(savedMarker != null){
+                if (savedMarker != null) {
                     addParkedCarMarker(latLngCoordinates);
                 }
 //                map.addMarker(new MarkerOptions().position(latLngCoordinates).title(curKnownAddress));
@@ -465,9 +477,14 @@ public class MapsFragment extends Fragment {
         //save parking spot button
         binding.saveSpot.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                LatLng latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+//                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
+//                        .addConverterFactory(GsonConverterFactory.create()).build();
+//                iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
+                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "create");
                 Snackbar.make(binding.mapRelLayout, getString(R.string.save_spot_saved), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                if(savedMarker != null){
+                if (savedMarker != null) {
                     savedMarker.remove();
                     savedMarker = null;
                 }
@@ -480,6 +497,11 @@ public class MapsFragment extends Fragment {
         //remove parking spot button
         binding.removeSpot.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                LatLng latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+//                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
+//                        .addConverterFactory(GsonConverterFactory.create()).build();
+                //iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
+                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "update");
                 Snackbar.make(binding.mapRelLayout, getString(R.string.parking_spot_removed), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 savedMarker.remove();
@@ -493,8 +515,8 @@ public class MapsFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void addParkedCarMarker(LatLng latLng){
-        if(latLng == null){
+    private void addParkedCarMarker(LatLng latLng) {
+        if (latLng == null) {
             latLng = new LatLng(lastKnownLocation.getLatitude(),
                     lastKnownLocation.getLongitude());
         }
@@ -597,5 +619,47 @@ public class MapsFragment extends Fragment {
             return null;
         }
 
+    }
+
+    private void updateSpotStatus(double latitude, double longitude, String transaction) {
+        String lat = Double.toString(latitude);
+        String lng = Double.toString(longitude);
+        StringBuilder sb = new StringBuilder();
+        sb.append(lat);
+        sb.append("|");
+        sb.append(lng);
+        Item item = new Item();
+        Payload payload = new Payload();
+        item.setId(sb.toString());
+        item.setLatitude(latitude);
+        item.setLongitude(longitude);
+        if (transaction.equals("create")) {
+            item.setParkingstatus("parked");
+        } else if (transaction.equals("update")) {
+            item.setParkingstatus("available");
+        }
+         String android_id = Settings.Secure.getString(getContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        item.setUserid(android_id);
+        payload.setItem(item);
+        Post post = new Post(transaction, "parknow", payload);
+        iPostCallParkingSpots = PostCallAPI.getAPIService();
+        Call<POST> call = iPostCallParkingSpots.createPost(post);
+        call.enqueue(new Callback<POST>() {
+            @Override
+            public void onResponse(Call<POST> call, Response<POST> response) {
+                if (!response.isSuccessful()) {
+                    Snackbar.make(binding.mapRelLayout, getString(R.string.save_spot_saved), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    return;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<POST> call, Throwable throwable) {
+                Log.e("ERROR", "Unable to call POST call API.");
+
+            }
+        });
     }
 }

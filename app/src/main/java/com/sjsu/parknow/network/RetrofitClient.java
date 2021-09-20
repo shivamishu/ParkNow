@@ -7,6 +7,8 @@ public class RetrofitClient {
 
     private static Retrofit retrofitGoogle = null;
     private static Retrofit retrofitSearchSpots = null;
+    private static Retrofit retrofitPostCall = null;
+
     public static Retrofit getClientGoogle(String baseUrl) {
         if (retrofitGoogle==null) {
             retrofitGoogle = new Retrofit.Builder()
@@ -24,5 +26,15 @@ public class RetrofitClient {
                     .build();
         }
         return retrofitSearchSpots;
+    }
+
+    public static Retrofit getPostCall(String baseUrl) {
+        if (retrofitPostCall==null) {
+            retrofitPostCall = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return retrofitPostCall;
     }
 }
