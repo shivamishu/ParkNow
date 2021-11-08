@@ -1,7 +1,14 @@
 package com.sjsu.parknow;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.location.Address;
 import android.location.Geocoder;
@@ -9,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +24,24 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.FragmentNearbyBinding;
 import com.sjsu.parknow.model.AdapterDataItem;
@@ -32,6 +49,7 @@ import com.sjsu.parknow.model.GoogleResponse;
 import com.sjsu.parknow.model.Result;
 import com.sjsu.parknow.model.SpotResult;
 import com.sjsu.parknow.model.SpotsResponse;
+import com.sjsu.parknow.utils.GeoFenceHelper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -41,6 +59,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +85,15 @@ public class NearbyFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private String mParam3;
+
+
+    private GeofencingClient geofencingClient;
+    private int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
+    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+
+    private float GEOFENCE_RADIUS = 100;
+    private GeoFenceHelper geofenceHelper;
+    private String GEOFENCE_ID = "SOME_GEOFENCE_ID";
 
     public NearbyFragment() {
         // Required empty public constructor
@@ -143,7 +172,25 @@ public class NearbyFragment extends Fragment {
                 adapterData.add(item);
             }
         }
+        geofencingClient = LocationServices.getGeofencingClient(getContext());
+        geofenceHelper = new GeoFenceHelper(getContext());
+        /*NotificationManager manager = (NotificationManager) getContext().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancelAll();
+        if(getActivity().getIntent().hasExtra("Yes")){
+            testFn();
+        } else{
+            testFn();
+        }*/
+        /* Intent yesIntent = new Intent();
+        yesIntent.putExtra("Yes", true);
+        yesIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent yesPedingIntent = PendingIntent.getActivity(getContext(),26,yesIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent.getActivity(this, 26, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent noIntent = new Intent();
+        noIntent.putExtra("No", false);
+        noIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent noPendingIntent = PendingIntent.getActivity(getContext(), 7, noIntent, PendingIntent.FLAG_UPDATE_CURRENT);*/
     }
 
     @Override
@@ -175,6 +222,13 @@ public class NearbyFragment extends Fragment {
         }
 
     }
+
+    public void testFn(){
+        Toast.makeText(getContext(), "Yes Received", Toast.LENGTH_LONG).show();
+
+    }
+
+
 
     public class MainCardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -293,6 +347,23 @@ public class NearbyFragment extends Fragment {
             holder.titleView.setText(item.getName());
             holder.titleView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        //We show a dialog and ask for permission
+                        ActivityCompat.requestPermissions(requireActivity(), new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(), new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    }
+                    if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(requireActivity().getApplicationContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        LatLng latLng = new LatLng(Double.valueOf(item.getLatitude()),Double.valueOf(item.getLongitude()));
+                        System.out.println("************Latitude*********"+Double.valueOf(item.getLatitude()));
+                        System.out.println("************Longitude*********"+Double.valueOf(item.getLongitude()));
+                        addGeofence(latLng, GEOFENCE_RADIUS);
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(),
+                                new String[]{android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    }
+
                     String directionAddressString = encodeAddressString(item.getAddress());
                     String mapsURL = "https://www.google.com/maps/dir/" + userCurAddress +  "/" + directionAddressString;   //used for opening google maps;
                     Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(mapsURL));
@@ -306,5 +377,31 @@ public class NearbyFragment extends Fragment {
             return dataList.size();
         }
 
+        @SuppressLint("MissingPermission")
+        private void addGeofence(LatLng latLng, float radius) {
+
+            Geofence geofence = geofenceHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+            GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+           // PendingIntent pendingYesIntent = geofenceHelper.getYesPendingIntent(GEOFENCE_ID, latLng, radius);
+            geofenceHelper.setLatLng(latLng);
+            PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+
+
+            geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: Geofence Added...");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            String errorMessage = geofenceHelper.getErrorString(e);
+                            Log.d(TAG, "onFailure: " + errorMessage);
+                        }
+                    });
+
+        }
     }
 }

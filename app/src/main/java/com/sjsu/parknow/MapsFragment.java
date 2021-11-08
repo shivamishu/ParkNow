@@ -1,5 +1,8 @@
 package com.sjsu.parknow;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -25,6 +28,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,6 +43,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.sjsu.parknow.databinding.FragmentMapsBinding;
@@ -53,6 +63,8 @@ import com.sjsu.parknow.network.IParkingSpots;
 import com.sjsu.parknow.network.IPostCallParkingSpots;
 import com.sjsu.parknow.network.ParkingSpotsSearchAPI;
 import com.sjsu.parknow.network.PostCallAPI;
+
+import com.sjsu.parknow.utils.GeoFenceHelper;
 import com.sjsu.parknow.utils.PlaceAutoComplete;
 
 import java.util.ArrayList;
@@ -64,6 +76,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.POST;
+
+import static android.content.ContentValues.TAG;
+
 
 public class MapsFragment extends Fragment {
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -90,6 +105,11 @@ public class MapsFragment extends Fragment {
     private IPostCallParkingSpots iPostCallParkingSpots;
 
 
+    private float GEOFENCE_RADIUS = 100;
+    private GeoFenceHelper geofenceHelper;
+    private String GEOFENCE_ID = "SOME_GEOFENCE_ID";
+    private GeofencingClient geofencingClient;
+    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
@@ -106,6 +126,9 @@ public class MapsFragment extends Fragment {
 
             map = googleMap;
 
+
+            geofencingClient = LocationServices.getGeofencingClient(getContext());
+            geofenceHelper = new GeoFenceHelper(getContext());
             LatLng cupertino = new LatLng(37.00, -122.00);
             googleMap.addMarker(new MarkerOptions().position(cupertino).title("Default Location: Cupertino"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(cupertino, DEFAULT_ZOOM));
@@ -124,6 +147,18 @@ public class MapsFragment extends Fragment {
                     // Inflate the layouts for the info window, title and snippet.
                     View infoWindow = getLayoutInflater().inflate(R.layout.info_window, (FrameLayout) requireActivity().findViewById(R.id.map), false);
 
+                    LatLng latLng = marker.getPosition();
+
+                    if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(requireActivity().getApplicationContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+
+
+                        addGeofence(latLng, GEOFENCE_RADIUS);
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(),
+                                new String[]{android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    }
+                    addGeofence(latLng,GEOFENCE_RADIUS);
                     TextView title = infoWindow.findViewById(R.id.title);
                     title.setText(marker.getTitle());
 
@@ -143,6 +178,32 @@ public class MapsFragment extends Fragment {
             getDeviceLocation();
         }
     };
+    @SuppressLint("MissingPermission")
+    private void addGeofence(LatLng latLng, float radius) {
+
+        Geofence geofence = geofenceHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+        // PendingIntent pendingYesIntent = geofenceHelper.getYesPendingIntent(GEOFENCE_ID, latLng, radius);
+        geofenceHelper.setLatLng(latLng);
+        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+
+
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: Geofence Added...");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String errorMessage = geofenceHelper.getErrorString(e);
+                        Log.d(TAG, "onFailure: " + errorMessage);
+                    }
+                });
+
+    }
 
     private void setSavedMarkerPosition() {
         LatLng savedMarkerLatLng = getSavedLocationFromDevice();
@@ -481,7 +542,7 @@ public class MapsFragment extends Fragment {
 //                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
 //                        .addConverterFactory(GsonConverterFactory.create()).build();
 //                iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
-                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "create");
+                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "create",getContext());
                 Snackbar.make(binding.mapRelLayout, getString(R.string.save_spot_saved), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 if (savedMarker != null) {
@@ -501,7 +562,7 @@ public class MapsFragment extends Fragment {
 //                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
 //                        .addConverterFactory(GsonConverterFactory.create()).build();
                 //iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
-                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "update");
+                updateSpotStatus(latLngCoordinates.latitude, latLngCoordinates.longitude, "update",getContext());
                 Snackbar.make(binding.mapRelLayout, getString(R.string.parking_spot_removed), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 savedMarker.remove();
@@ -621,7 +682,10 @@ public class MapsFragment extends Fragment {
 
     }
 
-    private void updateSpotStatus(double latitude, double longitude, String transaction) {
+
+
+    public void updateSpotStatus(double latitude, double longitude, String transaction,Context context) {
+
         String lat = Double.toString(latitude);
         String lng = Double.toString(longitude);
         StringBuilder sb = new StringBuilder();
@@ -638,7 +702,9 @@ public class MapsFragment extends Fragment {
         } else if (transaction.equals("update")) {
             item.setParkingstatus("available");
         }
-         String android_id = Settings.Secure.getString(getContext().getContentResolver(),
+
+        String android_id = Settings.Secure.getString(context.getContentResolver(),
+
                 Settings.Secure.ANDROID_ID);
         item.setUserid(android_id);
         payload.setItem(item);
