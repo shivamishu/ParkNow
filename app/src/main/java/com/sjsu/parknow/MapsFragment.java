@@ -67,6 +67,16 @@ import com.sjsu.parknow.network.PostCallAPI;
 import com.sjsu.parknow.utils.GeoFenceHelper;
 import com.sjsu.parknow.utils.PlaceAutoComplete;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +91,7 @@ import static android.content.ContentValues.TAG;
 
 
 public class MapsFragment extends Fragment {
+    private static final String FILE_NAME = "storeLatLong.txt";
     private static final String TAG = MapsFragment.class.getSimpleName();
     private FragmentMapsBinding binding;
     private GoogleMap map;
@@ -169,7 +180,14 @@ public class MapsFragment extends Fragment {
                 }
             });
             //put back the stored car parking location from data store
-            setSavedMarkerPosition();
+            //setSavedMarkerPosition();
+            try {
+                setSavedMarkerPosition();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             // Prompt the user for permission.
             getLocationPermission();
             // Turn on the My Location layer and the related control on the map.
@@ -205,14 +223,46 @@ public class MapsFragment extends Fragment {
 
     }
 
-    private void setSavedMarkerPosition() {
+    private void setSavedMarkerPosition() throws IOException, JSONException {
         LatLng savedMarkerLatLng = getSavedLocationFromDevice();
         addParkedCarMarker(savedMarkerLatLng);
     }
 
-    private LatLng getSavedLocationFromDevice() {
+//    private LatLng getSavedLocationFromDevice() {
+//        //add your code here to store LatLng (location coordinate of the parked car)
+//        LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
+//        return latLng;
+//    }
+    private LatLng getSavedLocationFromDevice() throws IOException, JSONException {
         //add your code here to store LatLng (location coordinate of the parked car)
-        LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
+        FileInputStream fis = null;
+        fis = getContext().openFileInput(FILE_NAME);
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader br = new BufferedReader(isr);
+        StringBuilder sb = new StringBuilder();
+        String text;
+        while((text = br.readLine()) != null) {
+            sb.append(text).append("\n");
+        }
+        Log.d("retrieving lat n long from file", String.valueOf(sb));
+    //        Log.d("text to be read read read", sb["lat"]);
+    //        Log.d("text to be read read read", String.valueOf(sb));
+        JSONObject obj = new JSONObject(String.valueOf(sb));
+
+        Log.d("My App", obj.toString());
+        LatLng latLng;
+
+        if (obj.has("lat") && !obj.isNull("lat") && obj.has("lng") && !obj.isNull("lng") ) {
+            // Do something with object.
+            Log.d("lat value inside ", String.valueOf(obj.get("lat")));
+            Log.d("lng value inside", String.valueOf(obj.get("lng")));
+            latLng = new LatLng(Double.parseDouble(obj.getString("lat")), Double.parseDouble(obj.getString("lng"))); // from local file
+        } else {
+            Log.d("using static lat n long","37.337105, -122.0379474 ");
+            latLng = new LatLng(37.337105, -122.0379474); //sample location
+        }
+
+        //LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
         return latLng;
     }
 
@@ -555,6 +605,23 @@ public class MapsFragment extends Fragment {
                     savedMarker = null;
                 }
                 addParkedCarMarker(null);
+                //saving lat and lon into file for current parking spot.
+
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("lat", latLngCoordinates.latitude);
+                    jsonObject.put("lng", latLngCoordinates.longitude);
+                    String userString = jsonObject.toString();
+
+                    File file = new File(getContext().getFilesDir(),FILE_NAME);
+                    FileWriter fileWriter = new FileWriter(file);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(userString);
+                    bufferedWriter.close();
+                    //Log.d("saving lat n long into file","");
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
                 //TODO: add function call to save parking spot in device
                 //TODO: add function call mark position status in DB
             }
