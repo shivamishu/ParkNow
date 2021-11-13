@@ -139,7 +139,7 @@ public class NearbyFragment extends Fragment {
 
             for(SpotResult res : spotsResponse.getResults()){
                 AdapterDataItem item = new AdapterDataItem();
-                item.setDistance(res.getDistance());
+//                item.setDistance(res.getDistance());
                 item.setLatitude(res.getLatitude());
                 item.setLongitude(res.getLongitude());
                 item.setName(res.getName());
@@ -247,7 +247,7 @@ public class NearbyFragment extends Fragment {
             titleView = itemView.findViewById(R.id.titleView);
             timeView = itemView.findViewById(R.id.time);
 //            eta = itemView.findViewById(R.id.eta);
-            distanceView = itemView.findViewById(R.id.distance);
+//            distanceView = itemView.findViewById(R.id.distance);
             item = itemView;
             openNowView = itemView.findViewById(R.id.open);
             ratingBarView = itemView.findViewById(R.id.ratingBar);
@@ -314,7 +314,7 @@ public class NearbyFragment extends Fragment {
 //            holder.timeView.setText("ETA: 14:35:00");
             holder.titleView.setText(item.getName());
 //            holder.distanceView.setText("Distance: " + item.getDistanceText());
-            holder.distanceView.setText("Distance: " + item.getDistance() + " meters");
+//            holder.distanceView.setText("Distance: " + item.getDistance() + " meters");
             if(item.getOpenNow() != null){
                 Boolean isOpen = item.getOpenNow();
                 holder.openNowView.setText(isOpen ? "Open" : "Closed");

@@ -511,6 +511,11 @@ public class MapsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 LatLng latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                if(latLngCoordinates == null) {
+                    callFusedLocationProviderClient(false);
+                    latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                }
+
                 curKnownLocation = latLngCoordinates.latitude + "," + latLngCoordinates.longitude;
                 curKnownAddress = parent.getItemAtPosition(position).toString();
                 map.clear();

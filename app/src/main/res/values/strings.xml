@@ -15,6 +15,7 @@
     <string name="enter_address">Enter Destination Address</string>
     <string name="openList">List view of nearby parking locations</string>
     <string name="nearbyLoc">Nearby Parking Locations</string>
+    <string name="nearbyLoc2">(Within 1000 ft)</string>
     <string name="placeTitle">Sample Place</string>
     <string name="time">Time: </string>
     <string name="distance">Distance: </string>
