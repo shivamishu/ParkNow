@@ -105,24 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-//        FloatingActionButton fab = findViewById(R.id.add_fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Parking Location Stored", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
-//        providers = Arrays.asList(
-//                new AuthUI.IdpConfig.EmailBuilder().build(),
-//                new AuthUI.IdpConfig.GoogleBuilder().build()
-//        );
-//        if (savedInstanceState == null) {
-//            showSignInOptions();
-//        }
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-//        callFusedLocationProviderClientMain();
     }
     @Override
     public boolean onSupportNavigateUp() {

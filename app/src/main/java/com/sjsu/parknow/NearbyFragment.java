@@ -422,9 +422,9 @@ public class NearbyFragment extends Fragment {
     public void handleSpotsRRDNU(LatLng latLng) {
         if (latLng != null) {
             addParkedCarMarkerDNU(latLng);
-//            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
+//
         }
-//        binding.resultImageView.setImageBitmap(getBitMapImage());
+//
     }
     private void callParkingSpotsAPIDNU(String location, String radius) {
         IParkingSpots iParkingSpots = ParkingSpotsSearchAPI.getAPIService();
@@ -435,7 +435,7 @@ public class NearbyFragment extends Fragment {
 
                 if (response.isSuccessful()) {
 
-//                    binding.progressBar.setVisibility(View.GONE);
+//
                     Log.i("RESPONSE", "got results from API." + response.body().toString());
                 }
             }
