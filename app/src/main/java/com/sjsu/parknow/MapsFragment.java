@@ -238,11 +238,6 @@ public class MapsFragment extends Fragment {
 
     }
 
-//    private LatLng getSavedLocationFromDevice() {
-//        //add your code here to store LatLng (location coordinate of the parked car)
-//        LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
-//        return latLng;
-//    }
     private LatLng getSavedLocationFromDevice() throws IOException, JSONException {
         JSONObject jsonObj = new JSONObject();
         try {
@@ -508,17 +503,17 @@ public class MapsFragment extends Fragment {
     public void handleResponse(ArrayList<Result> results) {
         if (results != null) {
             setResultMarkers(results);
-//            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
+//
         }
-//        binding.resultImageView.setImageBitmap(getBitMapImage());
+//
     }
 
     public void handleSpotsResponse(ArrayList<SpotResult> results) {
         if (results != null) {
             setSpotResultMarkers(results);
-//            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
+//
         }
-//        binding.resultImageView.setImageBitmap(getBitMapImage());
+//
     }
 
     private void setSpotResultMarkers(ArrayList<SpotResult> results) {
