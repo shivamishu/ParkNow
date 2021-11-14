@@ -207,4 +207,25 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Exception: %s", e.getMessage(), e);
         }
     }
+
+    private LatLng getLatLngCordFromAddress(String address) {
+
+        Geocoder geoCoder = new Geocoder(getApplicationContext());
+        List<Address> addressesList;
+
+        try {
+            addressesList = geoCoder.getFromLocationName(address, 1);
+            if (addressesList != null) {
+                Address addressItem = addressesList.get(0);
+                LatLng latLng = new LatLng(addressItem.getLatitude(), addressItem.getLongitude());
+                return latLng;
+            } else {
+                return null;
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+            return null;
+        }
+
+    }
 }
