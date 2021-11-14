@@ -29,4 +29,5 @@
     <string name="list">List view</string>
     <string name="save">Save spot</string>
     <string name="remove">Release spot</string>
+    <string name="findMyCar">Find my car</string>
 </resources>

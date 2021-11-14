@@ -8,6 +8,10 @@
         android:id="@+id/aboutFragment"
         android:icon="@drawable/ic_parked_car"
         android:title="@string/about" />
+    <item
+        android:id="@+id/getMyCar"
+        android:icon="@drawable/car_marker"
+        android:title="@string/findMyCar" />
 <!--    <item-->
 <!--        android:id="@+id/logoutFragment"-->
 <!--        android:icon="@drawable/ic_baseline_logout_24"-->

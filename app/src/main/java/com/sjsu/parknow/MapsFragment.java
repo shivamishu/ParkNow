@@ -74,9 +74,16 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,7 +232,10 @@ public class MapsFragment extends Fragment {
 
     private void setSavedMarkerPosition() throws IOException, JSONException {
         LatLng savedMarkerLatLng = getSavedLocationFromDevice();
-        addParkedCarMarker(savedMarkerLatLng);
+        if(savedMarkerLatLng != null){
+            addParkedCarMarker(savedMarkerLatLng);
+        }
+
     }
 
 //    private LatLng getSavedLocationFromDevice() {
@@ -234,32 +244,53 @@ public class MapsFragment extends Fragment {
 //        return latLng;
 //    }
     private LatLng getSavedLocationFromDevice() throws IOException, JSONException {
-        //add your code here to store LatLng (location coordinate of the parked car)
-        FileInputStream fis = null;
-        fis = getContext().openFileInput(FILE_NAME);
-        InputStreamReader isr = new InputStreamReader(fis);
-        BufferedReader br = new BufferedReader(isr);
-        StringBuilder sb = new StringBuilder();
-        String text;
-        while((text = br.readLine()) != null) {
-            sb.append(text).append("\n");
+        JSONObject jsonObj = new JSONObject();
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream
+                    (new File(getActivity().getCacheDir() + File.separator + "cacheFile.srl")));
+            jsonObj = new JSONObject((String) in.readObject());
+            in.close();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (OptionalDataException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (StreamCorruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        Log.d("retrieving lat n long from file", String.valueOf(sb));
-    //        Log.d("text to be read read read", sb["lat"]);
-    //        Log.d("text to be read read read", String.valueOf(sb));
-        JSONObject obj = new JSONObject(String.valueOf(sb));
 
-        Log.d("My App", obj.toString());
-        LatLng latLng;
 
-        if (obj.has("lat") && !obj.isNull("lat") && obj.has("lng") && !obj.isNull("lng") ) {
+//        //add your code here to store LatLng (location coordinate of the parked car)
+//        FileInputStream fis = null;
+//        fis = getContext().openFileInput(FILE_NAME);
+//        InputStreamReader isr = new InputStreamReader(fis);
+//        BufferedReader br = new BufferedReader(isr);
+//        StringBuilder sb = new StringBuilder();
+//        String text;
+//        while((text = br.readLine()) != null) {
+//            sb.append(text).append("\n");
+//        }
+//        Log.d("retrieving lat n long from file", String.valueOf(sb));
+//    //        Log.d("text to be read read read", sb["lat"]);
+//    //        Log.d("text to be read read read", String.valueOf(sb));
+//        JSONObject obj = new JSONObject(String.valueOf(sb));
+
+        Log.d("My App", jsonObj.toString());
+        LatLng latLng = null;
+
+        if (jsonObj.has("lat") && !jsonObj.isNull("lat") && jsonObj.has("lng") && !jsonObj.isNull("lng") ) {
             // Do something with object.
-            Log.d("lat value inside ", String.valueOf(obj.get("lat")));
-            Log.d("lng value inside", String.valueOf(obj.get("lng")));
-            latLng = new LatLng(Double.parseDouble(obj.getString("lat")), Double.parseDouble(obj.getString("lng"))); // from local file
+            Log.d("lat value inside ", String.valueOf(jsonObj.get("lat")));
+            Log.d("lng value inside", String.valueOf(jsonObj.get("lng")));
+            latLng = new LatLng(Double.parseDouble(jsonObj.getString("lat")), Double.parseDouble(jsonObj.getString("lng"))); // from local file
         } else {
-            Log.d("using static lat n long","37.337105, -122.0379474 ");
-            latLng = new LatLng(37.337105, -122.0379474); //sample location
+            Log.d("saved spot not found!!","Saved Spot NOT FOUND");
+//            latLng = new LatLng(37.337105, -122.0379474); //sample location
         }
 
         //LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
@@ -286,16 +317,7 @@ public class MapsFragment extends Fragment {
 //                        Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
                         return true;
                     } else {
-//                        LatLng curLatLng = new LatLng(lastKnownLocation.getLatitude(),
-//                                lastKnownLocation.getLongitude());
-//                        curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-//                        curKnownAddress = getAddressFromLatLngCord(curLatLng).getAddressLine(0);
-//                        showSnackBar(curKnownLocation, curKnownAddress);
-                        ////pass radius as well
-//                        callAPI(curKnownLocation, "");
-//                        map.clear();
-//                        map.addMarker(new MarkerOptions().position(curLatLng).title(curKnownAddress));
-//                        binding.inputSearch.setText(curKnownAddress);
+//
                         callFusedLocationProviderClient(true);
                         return false;
 
@@ -303,40 +325,7 @@ public class MapsFragment extends Fragment {
 
                 }
             });
-//            if (locationPermissionGranted) {
-//                Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
-//                locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Location> task) {
-//                        if (task.isSuccessful() && task.getResult() != null) {
-//                            // Set the map's camera position to the current location of the device.
 //
-////                            if (task.getResult() != null) {
-//                            lastKnownLocation = task.getResult();
-//                            LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
-//                                    lastKnownLocation.getLongitude());
-//                            curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
-//                            curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-            //pass radius as well
-//                            callAPI(curKnownLocation,"");
-//                            map.clear();
-//                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
-//                            binding.inputSearch.setText(curKnownAddress);
-//                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-////                            }
-//                        } else {
-//                            Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
-//                                    .setAction("Action", null).show();
-////                            Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
-//                            Log.d(TAG, "Current location is null. Using defaults.");
-//                            Log.e(TAG, "Exception: %s", task.getException());
-//                            map.moveCamera(CameraUpdateFactory
-//                                    .newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-//                            map.getUiSettings().setMyLocationButtonEnabled(true);
-//                        }
-//                    }
-//                });
-//            }
             callFusedLocationProviderClient(false);
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
@@ -353,15 +342,13 @@ public class MapsFragment extends Fragment {
                         if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
 
-//                            if (task.getResult() != null) {
+//
                             lastKnownLocation = task.getResult();
                             LatLng latLng = new LatLng(lastKnownLocation.getLatitude(),
                                     lastKnownLocation.getLongitude());
                             curKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
                             curKnownLocation = lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude();
-//                            if(showSnackBar == true){
-                            //showSnackBar(curKnownLocation, curKnownAddress);
-//                            }
+
                             //TODO: pass radius as well
                             callAPI(curKnownLocation, "");
                             map.clear();
@@ -373,7 +360,7 @@ public class MapsFragment extends Fragment {
 //                            map.addMarker(new MarkerOptions().position(latLng).title(curKnownAddress));
                             binding.inputSearch.setText(curKnownAddress);
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-//                            }
+//
                         } else {
                             Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
                                     .setAction("Action", null).show();
@@ -607,19 +594,35 @@ public class MapsFragment extends Fragment {
                 addParkedCarMarker(null);
                 //saving lat and lon into file for current parking spot.
 
+//                JSONObject jsonObject = new JSONObject();
+//                try {
+//                    jsonObject.put("lat", latLngCoordinates.latitude);
+//                    jsonObject.put("lng", latLngCoordinates.longitude);
+//                    String userString = jsonObject.toString();
+//
+//                    File file = new File(getContext().getFilesDir(),FILE_NAME);
+//                    FileWriter fileWriter = new FileWriter(file);
+//                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+//                    bufferedWriter.write(userString);
+//                    bufferedWriter.close();
+//                    //Log.d("saving lat n long into file","");
+//                } catch (JSONException | IOException e) {
+//                    e.printStackTrace();
+//                }
                 JSONObject jsonObject = new JSONObject();
                 try {
                     jsonObject.put("lat", latLngCoordinates.latitude);
                     jsonObject.put("lng", latLngCoordinates.longitude);
                     String userString = jsonObject.toString();
-
-                    File file = new File(getContext().getFilesDir(),FILE_NAME);
-                    FileWriter fileWriter = new FileWriter(file);
-                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                    bufferedWriter.write(userString);
-                    bufferedWriter.close();
-                    //Log.d("saving lat n long into file","");
-                } catch (JSONException | IOException e) {
+                    ObjectOutput out = new ObjectOutputStream(new FileOutputStream
+                            (new File(getActivity().getCacheDir(), "") + File.separator + "cacheFile.srl"));
+                    out.writeObject(userString);
+                    out.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 //TODO: add function call to save parking spot in device
@@ -641,7 +644,39 @@ public class MapsFragment extends Fragment {
                 savedMarker = null;
                 binding.cardRemoveSpot.setVisibility(View.GONE);
 
-
+                //REMOVE saved spot on device
+                JSONObject jsonObj = new JSONObject();
+                try {
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream
+                            (new File(getActivity().getCacheDir() + File.separator + "cacheFile.srl")));
+                    jsonObj = new JSONObject((String) in.readObject());
+                    in.close();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (OptionalDataException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (StreamCorruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                jsonObj.remove("lat");
+                jsonObj.remove("lng");
+                try {
+                    String userString = jsonObj.toString();
+                    ObjectOutput out = new ObjectOutputStream(new FileOutputStream
+                            (new File(getActivity().getCacheDir(), "") + File.separator + "cacheFile.srl"));
+                    out.writeObject(userString);
+                    out.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 //        return inflater.inflate(R.layout.fragment_maps, container, false);

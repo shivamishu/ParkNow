@@ -39,7 +39,10 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -49,6 +52,8 @@ import com.sjsu.parknow.model.GoogleResponse;
 import com.sjsu.parknow.model.Result;
 import com.sjsu.parknow.model.SpotResult;
 import com.sjsu.parknow.model.SpotsResponse;
+import com.sjsu.parknow.network.IParkingSpots;
+import com.sjsu.parknow.network.ParkingSpotsSearchAPI;
 import com.sjsu.parknow.utils.GeoFenceHelper;
 
 import java.io.UnsupportedEncodingException;
@@ -61,6 +66,10 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static android.content.ContentValues.TAG;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -339,7 +348,7 @@ public class NearbyFragment extends Fragment {
 //                holder.ratingBarView.setRating(Float.parseFloat(item.getRating()));
                 holder.ratingBarView.setRating(item.getRating());
             }else{
-                holder.ratingBarView.setVisibility(View.GONE);
+                holder.ratingBarView.setRating(Float.parseFloat("4"));
             }
             //open google maps
 //            holder.titleView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -403,5 +412,39 @@ public class NearbyFragment extends Fragment {
                     });
 
         }
+    }
+    private void addParkedCarMarkerDNU(LatLng latLng) {
+        LatLng llDNU = new LatLng(77.234234,37.1234234);
+        if (latLng == null) {
+            System.out.println(llDNU);
+        }
+    }
+    public void handleSpotsRRDNU(LatLng latLng) {
+        if (latLng != null) {
+            addParkedCarMarkerDNU(latLng);
+//            binding.cardRecyclerView.setAdapter(new MainCardAdapter(requireActivity().getApplicationContext(), getData()));
+        }
+//        binding.resultImageView.setImageBitmap(getBitMapImage());
+    }
+    private void callParkingSpotsAPIDNU(String location, String radius) {
+        IParkingSpots iParkingSpots = ParkingSpotsSearchAPI.getAPIService();
+        String curKnownLocation = "";
+        iParkingSpots.getParkingSpots("1000", curKnownLocation).enqueue(new Callback<SpotsResponse>() {
+            @Override
+            public void onResponse(Call<SpotsResponse> call, Response<SpotsResponse> response) {
+
+                if (response.isSuccessful()) {
+
+//                    binding.progressBar.setVisibility(View.GONE);
+                    Log.i("RESPONSE", "got results from API." + response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SpotsResponse> call, Throwable t) {
+//                binding.progressBar.setVisibility(View.GONE);
+                Log.e("ERROR", "Unable to call GET Parking spots API.");
+            }
+        });
     }
 }
