@@ -576,6 +576,12 @@ public class MapsFragment extends Fragment {
         binding.saveSpot.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 LatLng latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                if(latLngCoordinates == null) {
+                    callFusedLocationProviderClient(false);
+                    latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                }
+                curKnownLocation = latLngCoordinates.latitude + "," + latLngCoordinates.longitude;
+
 //                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
 //                        .addConverterFactory(GsonConverterFactory.create()).build();
 //                iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
@@ -587,6 +593,8 @@ public class MapsFragment extends Fragment {
                     savedMarker = null;
                 }
                 addParkedCarMarker(null);
+                callAPI(curKnownLocation, "");
+
                 //saving lat and lon into file for current parking spot.
 
 //                JSONObject jsonObject = new JSONObject();
@@ -629,6 +637,12 @@ public class MapsFragment extends Fragment {
         binding.removeSpot.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 LatLng latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                if(latLngCoordinates == null) {
+                    callFusedLocationProviderClient(false);
+                    latLngCoordinates = getLatLngCordFromAddress(binding.inputSearch.getText().toString());
+                }
+                curKnownLocation = latLngCoordinates.latitude + "," + latLngCoordinates.longitude;
+
 //                Retrofit retrofit = new Retrofit.Builder().baseUrl("https://qlml5plj9k.execute-api.us-west-2.amazonaws.com")
 //                        .addConverterFactory(GsonConverterFactory.create()).build();
                 //iPostCallParkingSpots = retrofit.create(IPostCallParkingSpots.class);
@@ -638,6 +652,7 @@ public class MapsFragment extends Fragment {
                 savedMarker.remove();
                 savedMarker = null;
                 binding.cardRemoveSpot.setVisibility(View.GONE);
+                callAPI(curKnownLocation, "");
 
                 //REMOVE saved spot on device
                 JSONObject jsonObj = new JSONObject();
