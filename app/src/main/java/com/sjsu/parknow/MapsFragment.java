@@ -210,7 +210,7 @@ public class MapsFragment extends Fragment {
         GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
         // PendingIntent pendingYesIntent = geofenceHelper.getYesPendingIntent(GEOFENCE_ID, latLng, radius);
         geofenceHelper.setLatLng(latLng);
-        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+        PendingIntent pendingIntent = geofenceHelper.getPendingIntent( latLng);
 
 
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
