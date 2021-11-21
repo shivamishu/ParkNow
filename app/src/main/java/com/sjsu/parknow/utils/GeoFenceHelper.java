@@ -14,17 +14,15 @@ import com.google.android.gms.maps.model.LatLng;
 public class GeoFenceHelper extends ContextWrapper {
     private static final String TAG = "GeofenceHelper";
 
-    public LatLng getLatLng() {
-        return latLng;
-    }
-
-    public void setLatLng(LatLng latLng) {
-        this.latLng = latLng;
-    }
-
     private LatLng latLng;
     PendingIntent pendingIntent;
     PendingIntent pendingYesIntent;
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
+    }
+    public LatLng getLatLng() {
+        return latLng;
+    }
     public PendingIntent getPendingYesIntent() {
         return pendingYesIntent;
     }
@@ -57,11 +55,17 @@ public class GeoFenceHelper extends ContextWrapper {
 
     }
 
-    public PendingIntent getPendingIntent() {
+    public PendingIntent getPendingIntent(LatLng latLng) {
+        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+
+        intent.putExtra("ID" ,26);
+        intent.putExtra("Lat" ,latLng.latitude);
+        intent.putExtra("Long" ,latLng.longitude);
+        sendBroadcast(intent);
         if (pendingIntent != null) {
             return pendingIntent;
         }
-        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+
         pendingIntent = PendingIntent.getBroadcast(this, 2607, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         return pendingIntent;
