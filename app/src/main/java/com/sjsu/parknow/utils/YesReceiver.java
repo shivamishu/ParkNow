@@ -45,47 +45,7 @@ public class YesReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "onSuccess: updated DB...");
 
-      /* String lat = Double.toString(latitude);
-        String lng = Double.toString(longitude);
-        StringBuilder sb = new StringBuilder();
-        sb.append(lat);
-        sb.append("|");
-        sb.append(lng);
-        Item item = new Item();
-        Payload payload = new Payload();
-        item.setId(sb.toString());
-        item.setLatitude(latitude);
-        item.setLongitude(longitude);
-        if (transaction.equals("create")) {
-            item.setParkingstatus("parked");
-        } else if (transaction.equals("update")) {
-            item.setParkingstatus("available");
-        }
 
-
-        String android_id = Settings.Secure.getString(context.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-        item.setUserid(android_id);
-        payload.setItem(item);
-        Post post = new Post(transaction, "parknow", payload);
-        iPostCallParkingSpots = PostCallAPI.getAPIService();
-        Call<POST> call = iPostCallParkingSpots.createPost(post);
-        call.enqueue(new Callback<POST>() {
-            @Override
-            public void onResponse(Call<POST> call, Response<POST> response) {
-                if (!response.isSuccessful()) {
-                    Snackbar.make(binding.mapRelLayout, "Your parking spot is updated", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    return;
-                }
-            }
-
-            @Override
-            public void onFailure(Call<POST> call, Throwable throwable) {
-                Log.e("ERROR", "Unable to call POST call API.");
-
-            }
-        });*/
     }
 
 }
