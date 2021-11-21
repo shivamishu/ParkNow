@@ -23,6 +23,15 @@ public class NotificationHelper extends ContextWrapper {
 
     private static final String TAG = "NotificationHelper";
     GeoFenceHelper geofenceHelper;
+
+    public GeoFenceHelper getGeofenceHelper() {
+        return geofenceHelper;
+    }
+
+    public void setGeofenceHelper(GeoFenceHelper geofenceHelper) {
+        this.geofenceHelper = geofenceHelper;
+    }
+
     double latitude;
     double longitude;
 
@@ -77,17 +86,9 @@ public class NotificationHelper extends ContextWrapper {
     }
         PendingIntent pendingIntent1 = geofenceHelper.getYesPendingIntent(latitude,longitude,transition);
 
-       // Intent yesIntent = new Intent(this, YesReceiver.class);
-      //  yesIntent.putExtra("Yes", "Yes");
-      //  PendingIntent yesPedingIntent = PendingIntent.getActivity(this,26,yesIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        //PendingIntent.getActivity(this, 26, yesIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-       /* Intent noIntent = new Intent(this, NearbyFragment.class);
-        PendingIntent noPendingIntent = PendingIntent.getActivity(this, 7, noIntent, PendingIntent.FLAG_UPDATE_CURRENT);*/
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-//                .setContentTitle(title)
-//                .setContentText(body)
-                //.setContentTitle("Park Now")
+//
                 .setContentText(title)
                 .setSmallIcon(R.drawable.ic_parked_car)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
