@@ -340,7 +340,7 @@ public class NearbyFragment extends Fragment {
 
             holder.addressView.setText("Address: " + item.getAddress());
             if(item.getSource().equals("GOOGLE")){
-                holder.imageView.setImageResource(R.drawable.park_grey_jpg);
+                holder.imageView.setImageResource(R.drawable.parking_alt_2);
             }else{
                 holder.imageView.setImageResource(R.drawable.park_green_jpg);
             }

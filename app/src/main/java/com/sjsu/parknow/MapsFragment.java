@@ -594,7 +594,7 @@ public class MapsFragment extends Fragment {
                 }
                 addParkedCarMarker(null);
                 callAPI(curKnownLocation, "");
-
+//                callFusedLocationProviderClient(false);
                 //saving lat and lon into file for current parking spot.
 
 //                JSONObject jsonObject = new JSONObject();
@@ -653,7 +653,7 @@ public class MapsFragment extends Fragment {
                 savedMarker = null;
                 binding.cardRemoveSpot.setVisibility(View.GONE);
                 callAPI(curKnownLocation, "");
-
+//                callFusedLocationProviderClient(false);
                 //REMOVE saved spot on device
                 JSONObject jsonObj = new JSONObject();
                 try {
