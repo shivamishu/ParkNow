@@ -103,7 +103,7 @@ public class NotificationHelper extends ContextWrapper {
                 .setAutoCancel(true)
                 .build();
 
-        NotificationManagerCompat.from(this).notify(new Random().nextInt(), notification);
+        NotificationManagerCompat.from(this).notify(24, notification);
 
     }
 
