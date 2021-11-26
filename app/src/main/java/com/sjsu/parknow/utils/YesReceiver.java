@@ -44,7 +44,8 @@ public class YesReceiver extends BroadcastReceiver {
         frag.updateSpotStatus(latitude,  longitude, transaction,context);
 
         Log.d(TAG, "onSuccess: updated DB...");
-
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(24);
 
     }
 
