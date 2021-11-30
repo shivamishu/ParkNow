@@ -96,8 +96,8 @@ import retrofit2.http.POST;
 
 import static android.content.ContentValues.TAG;
 
-
 public class MapsFragment extends Fragment {
+    // file is used to storing the lat long
     private static final String FILE_NAME = "storeLatLong.txt";
     private static final String TAG = MapsFragment.class.getSimpleName();
     private FragmentMapsBinding binding;
@@ -122,7 +122,6 @@ public class MapsFragment extends Fragment {
     private Marker savedMarker;
     private IPostCallParkingSpots iPostCallParkingSpots;
 
-
     private float GEOFENCE_RADIUS = 100;
     private GeoFenceHelper geofenceHelper;
     private String GEOFENCE_ID = "SOME_GEOFENCE_ID";
@@ -141,10 +140,7 @@ public class MapsFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-
             map = googleMap;
-
-
             geofencingClient = LocationServices.getGeofencingClient(getContext());
             geofenceHelper = new GeoFenceHelper(getContext());
             LatLng cupertino = new LatLng(37.00, -122.00);
@@ -169,7 +165,6 @@ public class MapsFragment extends Fragment {
 
                     if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(requireActivity().getApplicationContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
 
-
                         addGeofence(latLng, GEOFENCE_RADIUS);
                     } else {
                         ActivityCompat.requestPermissions(requireActivity(),
@@ -186,6 +181,7 @@ public class MapsFragment extends Fragment {
                     return infoWindow;
                 }
             });
+
             //put back the stored car parking location from data store
             //setSavedMarkerPosition();
             try {
@@ -195,10 +191,13 @@ public class MapsFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             // Prompt the user for permission.
             getLocationPermission();
+
             // Turn on the My Location layer and the related control on the map.
             updateLocationUI();
+
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
         }
@@ -208,10 +207,10 @@ public class MapsFragment extends Fragment {
 
         Geofence geofence = geofenceHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
         GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+
         // PendingIntent pendingYesIntent = geofenceHelper.getYesPendingIntent(GEOFENCE_ID, latLng, radius);
         geofenceHelper.setLatLng(latLng);
         PendingIntent pendingIntent = geofenceHelper.getPendingIntent( latLng);
-
 
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -259,22 +258,6 @@ public class MapsFragment extends Fragment {
             e.printStackTrace();
         }
 
-
-//        //add your code here to store LatLng (location coordinate of the parked car)
-//        FileInputStream fis = null;
-//        fis = getContext().openFileInput(FILE_NAME);
-//        InputStreamReader isr = new InputStreamReader(fis);
-//        BufferedReader br = new BufferedReader(isr);
-//        StringBuilder sb = new StringBuilder();
-//        String text;
-//        while((text = br.readLine()) != null) {
-//            sb.append(text).append("\n");
-//        }
-//        Log.d("retrieving lat n long from file", String.valueOf(sb));
-//    //        Log.d("text to be read read read", sb["lat"]);
-//    //        Log.d("text to be read read read", String.valueOf(sb));
-//        JSONObject obj = new JSONObject(String.valueOf(sb));
-
         Log.d("My App", jsonObj.toString());
         LatLng latLng = null;
 
@@ -285,10 +268,10 @@ public class MapsFragment extends Fragment {
             latLng = new LatLng(Double.parseDouble(jsonObj.getString("lat")), Double.parseDouble(jsonObj.getString("lng"))); // from local file
         } else {
             Log.d("saved spot not found!!","Saved Spot NOT FOUND");
-//            latLng = new LatLng(37.337105, -122.0379474); //sample location
+            // latLng = new LatLng(37.337105, -122.0379474); //sample location
         }
 
-        //LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
+        // LatLng latLng = new LatLng(37.337105, -122.0379474); //sample location
         return latLng;
     }
 
@@ -309,10 +292,10 @@ public class MapsFragment extends Fragment {
                     if (lastKnownLocation == null) {
                         Snackbar.make(binding.mapRelLayout, getString(R.string.loc_error), Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
-//                        Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(requireActivity().getApplicationContext(), getString(R.string.loc_error), Toast.LENGTH_LONG).show();
                         return true;
                     } else {
-//
+
                         callFusedLocationProviderClient(true);
                         return false;
 
@@ -320,7 +303,7 @@ public class MapsFragment extends Fragment {
 
                 }
             });
-//
+
             callFusedLocationProviderClient(false);
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
