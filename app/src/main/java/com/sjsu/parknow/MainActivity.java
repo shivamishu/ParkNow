@@ -112,6 +112,27 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, drawerLayout);
     }
 
+    private LatLng setLatLngCordFromAddress(String address) {
+
+        Geocoder geoCoder = new Geocoder(getApplicationContext());
+        List<Address> addressesList;
+
+        try {
+            addressesList = geoCoder.getFromLocationName(address, 1);
+            if (addressesList != null) {
+                Address addressItem = addressesList.get(0);
+                LatLng latLng = new LatLng(addressItem.getLatitude(), addressItem.getLongitude());
+                return latLng;
+            } else {
+                return null;
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+            return null;
+        }
+
+    }
+
     private LatLng getSavedLocationFromDevice() throws IOException, JSONException {
         JSONObject jsonObj = new JSONObject();
         try {
@@ -184,22 +205,16 @@ public class MainActivity extends AppCompatActivity {
     }
     public void callFusedLocationProviderClientMain() {
         try {
-
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
-
-//
                             mainLastKnownLocation = task.getResult();
                             LatLng latLng = new LatLng(mainLastKnownLocation.getLatitude(),
                                     mainLastKnownLocation.getLongitude());
                             mainCurKnownAddress = getAddressFromLatLngCord(latLng).getAddressLine(0);
-
-
-//
                         }
                     }
                 });
