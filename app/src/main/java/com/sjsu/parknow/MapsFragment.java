@@ -726,6 +726,15 @@ public class MapsFragment extends Fragment {
         action.setParkingSpotResponse(spotsResponse);
         Navigation.findNavController(view).navigate(action);
     }
+    private void nearbyList(View view) {
+        GoogleResponse response = getGoogleResults();
+        SpotsResponse spotsResponse = getSpotsResults();
+        MapsFragmentDirections.ActionMapsFragmentToNearbyFragment action = MapsFragmentDirections.actionMapsFragmentToNearbyFragment(curKnownLocation, response, spotsResponse);
+        action.setUserLocation(curKnownLocation);
+        action.setGoogleResponse(response);
+        action.setParkingSpotResponse(spotsResponse);
+        Navigation.findNavController(view).navigate(action);
+    }
 
     private void setGoogleResults(GoogleResponse results) {
         this.googleResults = results;
